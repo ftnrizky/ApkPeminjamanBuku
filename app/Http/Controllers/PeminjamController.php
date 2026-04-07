@@ -86,20 +86,21 @@ class PeminjamController extends Controller
         $pinjam = Peminjaman::findOrFail($id);
         
         $hariIni = now();
-        $deadline = $pinjam->tgl_kembali;
+        $deadline = $pinjam->tgl_kembali; // Pastikan kolom ini ada di database
         $totalDenda = 0;
 
+        // Hitung denda jika telat
         if ($hariIni->gt($deadline)) {
             $selisihHari = $hariIni->diffInDays($deadline);
             $totalDenda = $selisihHari * 5000;
         }
 
         $pinjam->update([
-            'status' => 'selesai', 
+            'status' => 'dikembalikan', // STATUS PERANTARA
             'tgl_dikembalikan' => $hariIni,
             'total_denda' => $totalDenda
         ]);
 
-        return redirect()->back()->with('success', 'Alat berhasil dikembalikan! ' . ($totalDenda > 0 ? 'Denda Anda: Rp' . number_format($totalDenda) : ''));
+        return redirect()->back()->with('success', 'Permintaan pengembalian dikirim! Silakan serahkan alat ke petugas.');
     }
 }

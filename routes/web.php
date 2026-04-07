@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AlatController;
+use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PeminjamController;
 use Illuminate\Support\Facades\Route;
@@ -16,20 +19,27 @@ Auth::routes();
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.kelola_user');
+    // CRUD USER
+    Route::get('/admin/users', [UserController::class, 'users'])->name('admin.kelola_user');
+    Route::post('/admin/users/store', [UserController::class, 'storeUser'])->name('admin.users.store');
+    Route::put('/admin/users/{id}', [UserController::class, 'updateUser'])->name('admin.users.update');
+    Route::delete('/admin/users/{id}', [UserController::class, 'destroyUser'])->name('admin.users.destroy');
 
     // CRUD ALAT
-    Route::get('/admin/alat', [AdminController::class, 'alat'])->name('admin.alat');
-    Route::post('/admin/alat/store', [AdminController::class, 'storeAlat'])->name('admin.alat.store');
-    Route::put('/admin/alat/{id}', [AdminController::class, 'update'])->name('admin.alat.update');
-    Route::delete('/admin/alat/{id}', [AdminController::class, 'destroy'])->name('admin.alat.destroy');
+    Route::get('/admin/alat', [AlatController::class, 'alat'])->name('admin.alat');
+    Route::post('/admin/alat/store', [AlatController::class, 'storeAlat'])->name('admin.alat.store');
+    Route::put('/admin/alat/{id}', [AlatController::class, 'update'])->name('admin.alat.update');
+    Route::delete('/admin/alat/{id}', [AlatController::class, 'destroy'])->name('admin.alat.destroy');
 
     // CRUD PEMINJAMAN
-    Route::get('/admin/peminjaman', [AdminController::class, 'peminjaman'])->name('admin.peminjaman');
-    Route::post('/admin/peminjaman/store', [AdminController::class, 'storePeminjaman'])->name('admin.peminjaman.store');
-    Route::patch('/admin/peminjaman/kembalikan/{id}', [AdminController::class, 'kembalikanAlat'])->name('admin.peminjaman.kembalikan');
-    Route::delete('/admin/peminjaman/{id}', [AdminController::class, 'destroyPeminjaman'])->name('admin.peminjaman.destroy');
-    Route::get('/admin/pengembalian', [AdminController::class, 'pengembalian'])->name('admin.pengembalian');
+    Route::get('/admin/peminjaman', [PeminjamanController::class, 'peminjaman'])->name('admin.peminjaman');
+    Route::post('/admin/peminjaman/store', [PeminjamanController::class, 'storePeminjaman'])->name('admin.peminjaman.store');
+    Route::patch('/admin/peminjaman/verifikasi/{id}', [PeminjamanController::class, 'verifikasiPeminjaman'])->name('admin.peminjaman.verifikasi');
+    Route::delete('/admin/peminjaman/{id}', [PeminjamanController::class, 'destroyPeminjaman'])->name('admin.peminjaman.destroy');
+    Route::patch('/admin/peminjaman/update/{id}', [PeminjamanController::class, 'updatePeminjaman'])->name('admin.peminjaman.update');
+    Route::patch('/admin/peminjaman/kembalikan/{id}', [PeminjamanController::class, 'kembalikanPeminjaman'])->name('admin.peminjaman.kembalikan');
+    
+    Route::get('/admin/pengembalian', [PeminjamanController::class, 'pengembalian'])->name('admin.pengembalian');
 });
 
 // PETUGAS
@@ -38,8 +48,9 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
 
     //Menyetujui Peminjaman
     Route::get('/petugas/menyetujui_peminjaman', [PetugasController::class, 'menyetujuiPeminjaman'])->name('petugas.menyetujui_pinjam');
-    Route::patch('/petugas/peminjaman/{id}/setuju', [PetugasController::class, 'prosesPersetujuanPinjam'])->name('petugas.pinjam.proses');
+    Route::patch('/petugas/peminjaman/{id}/proses', [PetugasController::class, 'prosesPersetujuanPinjam'])->name('petugas.pinjam.proses');
 
+    //Menyetujui Pengembalian
     Route::get('/petugas/menyetujui_pengembalian', [PetugasController::class, 'menyetujuiPengembalian'])->name('petugas.menyetujui_kembali');
     Route::patch('/petugas/pengembalian/{id}/konfirmasi', [PetugasController::class, 'prosesKonfirmasiKembali'])->name('petugas.kembali.proses');
     

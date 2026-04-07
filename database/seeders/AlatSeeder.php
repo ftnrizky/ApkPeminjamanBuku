@@ -13,7 +13,7 @@ class AlatSeeder extends Seeder
         $alats = [
             [
                 'nama_alat' => 'Bola Voli Mikasa V300W',
-                'kategori' => 'Voli',
+                'kategori' => 'Bola',
                 'stok_total' => 10,
                 'harga_sewa' => 15000,
                 'kondisi' => 'Baik',
@@ -21,7 +21,7 @@ class AlatSeeder extends Seeder
             ],
             [
                 'nama_alat' => 'Raket Badminton Yonex Arcsaber',
-                'kategori' => 'Badminton',
+                'kategori' => 'Raket',
                 'stok_total' => 15,
                 'harga_sewa' => 20000,
                 'kondisi' => 'Lecet',

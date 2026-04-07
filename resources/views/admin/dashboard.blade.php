@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .sidebar-active {
@@ -83,7 +84,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Member</p>
-                        <h3 class="text-4xl font-black mt-1 text-gray-900">10</h3>
+                        <h3 class="text-4xl font-black mt-1 text-gray-900">{{ $totalMember }}</h3>
                     </div>
                     <div class="bg-blue-50 p-4 rounded-2xl text-blue-500 group-hover:scale-110 transition-transform">
                         <i class="fas fa-users fa-2x"></i>
@@ -96,7 +97,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Alat</p>
-                        <h3 class="text-4xl font-black mt-1 text-gray-900">20</h3>
+                        <h3 class="text-4xl font-black mt-1 text-gray-900">{{ $totalAlat }}</h3>
                     </div>
                     <div class="bg-emerald-50 p-4 rounded-2xl text-emerald-500 group-hover:scale-110 transition-transform">
                         <i class="fas fa-basketball-ball fa-2x"></i>
@@ -109,7 +110,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sewa Aktif</p>
-                        <h3 class="text-4xl font-black mt-1 text-gray-900">5</h3>
+                        <h3 class="text-4xl font-black mt-1 text-gray-900">{{ $sewaAktif }}</h3>
                     </div>
                     <div class="bg-orange-50 p-4 rounded-2xl text-orange-500 group-hover:scale-110 transition-transform">
                         <i class="fas fa-stopwatch fa-2x"></i>
@@ -122,7 +123,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Dikembalikan</p>
-                        <h3 class="text-4xl font-black mt-1 text-gray-900">3</h3>
+                        <h3 class="text-4xl font-black mt-1 text-gray-900">{{ $dikembalikan }}</h3>
                     </div>
                     <div class="bg-purple-50 p-4 rounded-2xl text-purple-500 group-hover:scale-110 transition-transform">
                         <i class="fas fa-history fa-2x"></i>
@@ -131,38 +132,24 @@
             </div>
         </div>
 
-        <div class="mt-10 grid grid-cols-3 gap-6">
-            <div class="col-span-2 bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-                <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-                    <i class="fas fa-list text-emerald-500"></i> Aktivitas Terbaru
-                </h2>
-                <div class="border-t border-gray-50 py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center font-bold">R</div>
-                        <div>
-                            <p class="font-bold">Raket Badminton Yonex</p>
-                            <p class="text-sm text-gray-500">Dipinjam oleh Rian - 2 jam yang lalu</p>
-                        </div>
+        <div class="mt-10">
+            <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <i class="fas fa-chart-line text-emerald-500"></i> Statistik Peminjaman
+                        </h2>
+                        <p class="text-gray-400 text-xs font-medium mt-1">Analisis aktivitas penyewaan alat 7 hari terakhir</p>
                     </div>
-                    <span class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-bold uppercase">Dipinjam</span>
+                    <select class="text-xs font-bold bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-emerald-500/20">
+                        <option>7 Hari Terakhir</option>
+                        <option>30 Hari Terakhir</option>
+                    </select>
                 </div>
-                <div class="border-t border-gray-50 py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center font-bold">A</div>
-                        <div>
-                            <p class="font-bold">Bola Basket Spalding</p>
-                            <p class="text-sm text-gray-500">Dikembalikan oleh Andi - 5 jam yang lalu</p>
-                        </div>
-                    </div>
-                    <span class="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold uppercase">Kembali</span>
+
+                <div class="relative h-[400px]">
+                    <canvas id="loanChart"></canvas>
                 </div>
-            </div>
-            
-            <div class="bg-[#062c21] rounded-3xl p-8 text-white relative overflow-hidden">
-                <i class="fas fa-dumbbell absolute -right-4 -bottom-4 text-white/10 text-9xl -rotate-12"></i>
-                <h2 class="text-lg font-bold mb-2">Tips Perawatan</h2>
-                <p class="text-emerald-200 text-sm leading-relaxed mb-6">Jangan lupa mengecek tekanan angin pada bola setelah dikembalikan!</p>
-                <button class="bg-emerald-500 text-white px-5 py-2 rounded-xl text-sm font-bold">Lihat Panduan</button>
             </div>
         </div>
     </main>
@@ -170,4 +157,81 @@
 </div>
 
 </body>
+
+<script>
+    const ctx = document.getElementById('loanChart').getContext('2d');
+    
+    // Gradient untuk area bawah garis agar lebih estetik
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+    gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+    // Inisialisasi Grafik
+    new Chart(ctx, {
+        type: 'line', 
+        data: {
+            // Mengambil label hari dari Controller
+            labels: @json($labels), 
+            datasets: [{
+                label: 'Jumlah Peminjaman',
+                // Mengambil data jumlah dari Controller
+                data: @json($counts), 
+                borderColor: '#10b981', 
+                backgroundColor: gradient, // Menggunakan gradient
+                borderWidth: 4,
+                fill: true,
+                tension: 0.4, 
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false 
+                },
+                tooltip: {
+                    backgroundColor: '#062c21',
+                    titleFont: { family: 'Plus Jakarta Sans', size: 14, weight: 'bold' },
+                    bodyFont: { family: 'Plus Jakarta Sans', size: 13 },
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.parsed.y} Peminjaman`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.03)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        stepSize: 1, // Memastikan angka bulat (1, 2, 3...)
+                        font: { family: 'Plus Jakarta Sans', weight: '600' }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: { family: 'Plus Jakarta Sans', weight: '600' }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
 </html>

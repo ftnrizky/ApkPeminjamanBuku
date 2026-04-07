@@ -10,13 +10,16 @@
     
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .sidebar-active {
+            background: linear-gradient(to right, #10b981, #059669);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
 <div class="flex h-screen overflow-hidden">
-
-    <aside class="w-72 bg-[#062c21] text-white flex flex-col shadow-2xl">
+    <aside class="w-72 bg-[#062c21] text-white flex flex-col h-screen shadow-2xl">
         <div class="p-8 flex items-center gap-3">
             <div class="bg-emerald-500 p-2 rounded-xl rotate-3 shadow-lg shadow-emerald-500/20">
                 <i class="fas fa-running text-white text-xl"></i>
@@ -27,31 +30,32 @@
         <nav class="flex-1 px-6 space-y-2">
             <p class="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] mb-4">Staff Menu</p>
             
-            <a href="/petugas/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-600 shadow-lg shadow-emerald-900/20 text-white transition-all">
+            <a href="/petugas/dashboard" 
+            class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ Request::is('petugas/dashboard') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
                 <i class="fas fa-chart-pie w-5"></i> Dashboard
             </a>
 
-            <a href="/petugas/menyetujui_peminjaman" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 text-emerald-100/70 hover:text-white transition-all">
-                <i class="fas fa-clipboard-check w-5"></i> Menyetujui Pinjam
-            </a>
-            
-            <a href="/petugas/menyetujui_pengembalian" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 text-emerald-100/70 hover:text-white transition-all">
-                <i class="fas fa-file-import w-5"></i> Menyetujui Kembali
-            </a>
+            <div class="pt-6">
+                <p class="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] mb-4">Transaksi & Laporan</p>
+                
+                <a href="/petugas/menyetujui_peminjaman" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 {{ Request::is('petugas/menyetujui_peminjaman') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+                    <i class="fas fa-clipboard-check w-5"></i> Menyetujui Pinjam
+                </a>
+                
+                <a href="/petugas/menyetujui_pengembalian" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 {{ Request::is('petugas/menyetujui_pengembalian') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+                    <i class="fas fa-file-import w-5"></i> Menyetujui Kembali
+                </a>
 
-            <a href="/petugas/laporan" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 text-emerald-100/70 hover:text-white transition-all">
-                <i class="fas fa-print w-5"></i> Cetak Laporan
-            </a>
+                <a href="/petugas/laporan" 
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ Request::is('petugas/laporan') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+                    <i class="fas fa-print w-5"></i> Cetak Laporan
+                </a>
+            </div>
         </nav>
 
-        <div class="p-6 border-t border-emerald-900/50 bg-emerald-950/20">
-            <div class="flex items-center gap-3 mb-4 px-2">
-                <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white shadow-lg">P</div>
-                <div>
-                    <p class="text-sm font-bold leading-none text-white">Petugas Lapangan</p>
-                    <p class="text-[10px] text-emerald-400 mt-1 uppercase font-black">Online</p>
-                </div>
-            </div>
+        <div class="p-6 border-t border-emerald-900/50">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-xl transition-all font-bold text-sm shadow-lg shadow-orange-900/20">

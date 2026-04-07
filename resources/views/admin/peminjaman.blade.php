@@ -75,11 +75,6 @@
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <input type="text" placeholder="Cari berdasarkan nama atlet atau alat..." class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm font-semibold">
             </div>
-            <select class="bg-gray-50 border border-gray-200 px-6 py-3 rounded-2xl text-sm font-bold text-gray-600 outline-none focus:ring-4 focus:ring-emerald-500/10">
-                <option>Semua Status</option>
-                <option>Sedang Dipinjam</option>
-                <option>Terlambat</option>
-            </select>
         </div>
 
         <div class="bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm">
@@ -94,46 +89,128 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    @foreach($peminjamanBerlangsung as $item)
+                    @forelse($peminjamanBerlangsung as $item)
                     <tr class="hover:bg-emerald-50/30 transition-colors group">
-                        <td class="px-6 py-4 text-center font-bold text-gray-400 group-hover:text-emerald-600 transition-colors italic">
-                            #{{ $loop->iteration }}
+                        <td class="px-6 py-4 text-center font-bold text-gray-400 italic">
+                            #{{ str_pad($loop->iteration + ($peminjamanBerlangsung->currentPage() - 1) * $peminjamanBerlangsung->perPage(), 2, '0', STR_PAD_LEFT) }}
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($item->user->name) }}&background=062c21&color=fff" class="w-10 h-10 rounded-xl object-cover" alt="Avatar">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-900 flex items-center justify-center text-white font-bold shadow-sm">
+                                    {{ substr($item->user->name, 0, 1) }}
+                                </div>
                                 <div>
                                     <p class="font-bold text-gray-900 leading-none mb-1">{{ $item->user->name }}</p>
-                                    <p class="text-[10px] text-emerald-600 font-black tracking-widest uppercase italic">Member Atlet</p>
+                                    @if($item->status == 'disetujui')
+                                        <span class="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-md font-black uppercase tracking-wider">Aktif</span>
+                                    @elseif($item->status == 'menunggu')
+                                        <span class="text-[9px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-md font-black uppercase tracking-wider">Pending</span>
+                                    @elseif($item->status == 'selesai')
+                                        <span class="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md font-black uppercase tracking-wider">Dikembalikan</span>
+                                    @else
+                                        <span class="text-[9px] bg-rose-100 text-rose-600 px-2 py-0.5 rounded-md font-black uppercase tracking-wider">Ditolak</span>
+                                    @endif
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <p class="text-sm font-black text-gray-700 uppercase italic">{{ $item->alat->nama_alat }}</p>
-                            <p class="text-xs text-gray-400 font-bold">Qty: {{ $item->jumlah }} Unit</p>
+                            <p class="text-sm font-black text-gray-700 uppercase italic leading-none mb-1">{{ $item->alat->nama_alat }}</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Qty: {{ $item->jumlah }} Unit</p>
+                        </td>
+                        <td class="px-6 py-4 text-xs font-semibold text-gray-600">
+                            <div class="flex flex-col">
+                                <span class="font-bold tracking-tight"><i class="fas fa-calendar-alt text-emerald-500 mr-1"></i> {{ \Carbon\Carbon::parse($item->tgl_kembali)->format('d M Y') }}</span>
+                            </div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-[10px] font-black bg-orange-50 text-orange-700 border border-orange-100 uppercase tracking-tighter">
-                                <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($item->tgl_kembali)->format('d M Y') }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <button onclick="openReturnModal('{{ $item->id }}', '{{ $item->user->name }}', '{{ $item->alat->nama_alat }}')" 
-                                    class="bg-[#062c21] text-white text-[10px] font-black px-5 py-2.5 rounded-xl hover:bg-emerald-600 transition-all uppercase tracking-widest shadow-lg shadow-gray-200 italic">
-                                Selesai
-                            </button>
+                            <div class="flex justify-end gap-2">
+                                @if($item->status == 'menunggu')
+                                <form action="{{ route('admin.peminjaman.verifikasi', $item->id) }}" method="POST" class="inline">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="disetujui">
+                                    <button class="w-8 h-8 flex items-center justify-center bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all shadow-sm">
+                                        <i class="fas fa-check text-xs"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.peminjaman.verifikasi', $item->id) }}" method="POST" class="inline">
+                                    @csrf @method('PATCH')
+                                    <input type="hidden" name="status" value="ditolak">
+                                    <button class="w-8 h-8 flex items-center justify-center bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-all shadow-sm">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </form>
+                                @endif
+
+                                @if($item->status == 'disetujui')
+                                <button onclick="openReturnModal('{{ $item->id }}', '{{ $item->user->name }}')" class="w-8 h-8 flex items-center justify-center bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm">
+                                    <i class="fas fa-file-import text-xs"></i>
+                                </button>
+                                @endif
+
+                                <form action="{{ route('admin.peminjaman.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus data transaksi ini?')">
+                                    @csrf @method('DELETE')
+                                    <button class="w-8 h-8 flex items-center justify-center bg-gray-50 text-gray-400 rounded-lg hover:bg-rose-100 hover:text-rose-600 transition-all">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="5" class="py-24 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-folder-open text-gray-200 text-xl"></i>
+                                </div>
+                                <p class="text-gray-400 font-bold uppercase italic tracking-widest text-[10px]">Belum ada data peminjaman saat ini.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
+
+            <div class="p-6 bg-gray-50/50 flex items-center justify-between border-t border-gray-100">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    Showing {{ $peminjamanBerlangsung->firstItem() ?? 0 }} to {{ $peminjamanBerlangsung->lastItem() ?? 0 }} of {{ $peminjamanBerlangsung->total() }} records
+                </p>
+
+                <div class="flex gap-2">
+                    {{-- Tombol Kembali (Previous) --}}
+                    @if ($peminjamanBerlangsung->onFirstPage())
+                        <span class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-200 cursor-not-allowed">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </span>
+                    @else
+                        <a href="{{ $peminjamanBerlangsung->previousPageUrl() }}" class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:bg-white hover:text-emerald-600 transition-all shadow-sm">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </a>
+                    @endif
+
+                    {{-- Nomor Halaman Aktif --}}
+                    <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#062c21] text-white shadow-lg shadow-emerald-900/20 font-bold text-xs">
+                        {{ $peminjamanBerlangsung->currentPage() }}
+                    </span>
+
+                    {{-- Tombol Next (Selanjutnya) --}}
+                    @if ($peminjamanBerlangsung->hasMorePages())
+                        <a href="{{ $peminjamanBerlangsung->nextPageUrl() }}" class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:bg-white hover:text-emerald-600 transition-all shadow-sm">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </a>
+                    @else
+                        <span class="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-200 cursor-not-allowed">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </span>
+                    @endif
+                </div>
+            </div>
         </div>
     </main>
 </div>
 
 <div id="modal-tambah-pinjam" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
     <div class="fixed inset-0 bg-[#062c21]/60 backdrop-blur-sm transition-opacity" onclick="toggleModal('modal-tambah-pinjam')"></div>
-    
     <div class="bg-white rounded-[2.5rem] w-full max-w-lg p-10 relative z-10 shadow-2xl">
         <div class="flex justify-between items-start mb-8">
             <h2 class="text-2xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
@@ -170,8 +247,12 @@
                     <input type="number" name="jumlah" value="1" min="1" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Durasi (Hari)</label>
-                    <input type="number" name="durasi" required min="1" class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Tanggal Kembali</label>
+                    <input type="date" 
+                        name="tgl_kembali" 
+                        required 
+                        min="{{ date('Y-m-d') }}" 
+                        class="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl font-semibold text-sm focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all">
                 </div>
             </div>
             
@@ -184,13 +265,13 @@
 </div>
 
 <div id="modal-kembali" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="toggleModal('modal-kembali')"></div>
+    <div class="fixed inset-0 bg-[#062c21]/60 backdrop-blur-sm transition-opacity" onclick="toggleModal('modal-kembali')"></div>
     <div class="bg-white rounded-[2.5rem] w-full max-w-sm p-10 relative z-10 shadow-2xl text-center">
         <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-file-import fa-2x"></i>
         </div>
         <h2 class="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-2">Konfirmasi</h2>
-        <p class="text-sm text-gray-500 font-medium mb-8 italic">Alat yang dikembalikan <span id="m-member" class="text-emerald-600 font-bold"></span> sudah dicek kondisinya?</p>
+        <p class="text-sm text-gray-500 font-medium mb-8 italic">Alat milik <span id="m-member" class="text-emerald-600 font-bold"></span> sudah kembali dan dicek kondisinya?</p>
         
         <form id="form-kembali" method="POST" action="">
             @csrf @method('PATCH')
@@ -209,7 +290,7 @@
         modal.classList.toggle('flex');
     }
 
-    function openReturnModal(id, member, alat) {
+    function openReturnModal(id, member) {
         document.getElementById('form-kembali').action = `/admin/peminjaman/kembalikan/${id}`;
         document.getElementById('m-member').innerText = member;
         toggleModal('modal-kembali');

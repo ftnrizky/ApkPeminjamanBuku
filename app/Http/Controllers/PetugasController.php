@@ -7,12 +7,32 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Alat;
 use App\Models\Peminjaman;
+use Carbon\Carbon;
 
 class PetugasController extends Controller
 {
     public function index() 
     {
-        return view ('petugas.dashboard');
+        $waitingApproval = Peminjaman::whereIn('status', ['pending', 'menunggu_kembali'])->count();
+
+        $alatDipinjam = Peminjaman::where('status', 'dipinjam')->count();
+
+        $selesaiHariIni = Peminjaman::where('status', 'kembali')
+                                    ->whereDate('updated_at', Carbon::today())
+                                    ->count();
+
+        $antreanTugas = Peminjaman::with(['user', 'alat'])
+                                    ->whereIn('status', ['pending', 'menunggu_kembali'])
+                                    ->orderBy('created_at', 'desc')
+                                    ->take(5)
+                                    ->get();
+
+        return view('petugas.dashboard', compact(
+            'waitingApproval', 
+            'alatDipinjam', 
+            'selesaiHariIni', 
+            'antreanTugas'
+        ));
     }
 
     /* ============================
@@ -64,7 +84,7 @@ class PetugasController extends Controller
     public function menyetujuiPengembalian() 
     {
         $pengembalians = Peminjaman::with(['user', 'alat'])
-            ->where('status', 'disetujui') 
+            ->where('status', 'dikembalikan') // Mencari yang diajukan peminjam
             ->latest()
             ->get();
 
@@ -76,14 +96,14 @@ class PetugasController extends Controller
         $pinjam = Peminjaman::findOrFail($id);
 
         $pinjam->update([
-            'status' => 'selesai', 
-            'kondisi' => $request->kondisi,
-            'tgl_dikembalikan' => now(), 
+            'status' => 'selesai', // SEKARANG BARU SELESAI
+            'kondisi' => $request->kondisi, // Petugas input kondisi alat (baik/rusak)
         ]);
 
+        // Stok alat bertambah kembali
         $pinjam->alat->increment('stok_tersedia', $pinjam->jumlah);
 
-        return redirect()->back()->with('success', 'Verifikasi berhasil! Data telah masuk ke riwayat Admin.');
+        return redirect()->back()->with('success', 'Verifikasi berhasil! Data otomatis masuk ke riwayat Admin.');
     }
 
     public function cetakLaporan() 

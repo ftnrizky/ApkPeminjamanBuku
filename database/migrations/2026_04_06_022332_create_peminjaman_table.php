@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('tgl_kembali');
             $table->date('tgl_dikembalikan')->nullable();
             $table->text('tujuan');
-            $table->enum('status', ['pending', 'disetujui', 'ditolak', 'selesai'])->default('pending');
+            $table->enum('status', ['pending', 'disetujui', 'ditolak', 'selesai', 'dikembalikan'])->default('pending');
             $table->decimal('total_denda', 10, 2)->default(0);
             $table->timestamps();
         });
