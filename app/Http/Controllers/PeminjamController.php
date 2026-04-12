@@ -12,12 +12,9 @@ use Carbon\Carbon;
 
 class PeminjamController extends Controller
 {
-    // DASHBOARD PEMINJAM (halaman utama)
     public function index()
     {
         $userId = Auth::id();
-        
-        // List peminjaman aktif (status disetujui)
         $peminjamanAktifList = Peminjaman::with('alat')
             ->where('user_id', $userId)
             ->where('status', 'disetujui')
@@ -27,11 +24,9 @@ class PeminjamController extends Controller
         
         return view('peminjam.dashboard', compact('peminjamanAktifList'));
     }
-    
-    // KATALOG ALAT (halaman daftar alat)
+
     public function katalog(Request $request)
     {
-        // Hanya tampilkan alat dengan kondisi BAIK atau LECET (masih bisa dipinjam)
         $query = Alat::whereIn('kondisi', ['baik', 'lecet']);
 
         if ($request->has('kategori') && $request->kategori != 'Semua') {
@@ -47,7 +42,6 @@ class PeminjamController extends Controller
         return view('peminjam.katalog', compact('alats', 'categories'));
     }
 
-    // PROSES PEMINJAMAN (sama seperti sebelumnya)
     public function ajukanPeminjaman($id)
     {
         $alat = Alat::findOrFail($id);
@@ -90,19 +84,15 @@ class PeminjamController extends Controller
         return redirect()->route('peminjam.katalog')->with('success', 'Permintaan pinjam berhasil dikirim!');
     }
 
-    // PENGEMBALIAN
     public function kembali()
     {
-        // Ambil data peminjaman yang sedang berlangsung
         $peminjamans = Peminjaman::with('alat')
             ->where('user_id', Auth::id())
             ->where('status', 'disetujui')
             ->get()
             ->map(function ($pinjam) {
-                // Hitung denda keterlambatan otomatis untuk tampilan
                 $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
                 $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
-                
                 $pinjam->estimasi_denda = 0;
                 $pinjam->terlambat_hari = 0;
 
@@ -120,17 +110,14 @@ class PeminjamController extends Controller
     {
         $pinjam = Peminjaman::with('alat')->findOrFail($id);
         
-        // Validasi kepemilikan
         if ($pinjam->user_id != Auth::id()) {
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke peminjaman ini!');
         }
-        
-        // Validasi status (harus 'disetujui')
+
         if ($pinjam->status != 'disetujui') {
             return redirect()->back()->with('error', 'Peminjaman ini tidak dapat diproses! Status saat ini: ' . $pinjam->status);
         }
-        
-        // Update status menjadi 'dikembalikan' (menunggu konfirmasi petugas)
+
         $pinjam->update([
             'status' => 'dikembalikan',
             'tgl_dikembalikan' => Carbon::now('Asia/Jakarta'),

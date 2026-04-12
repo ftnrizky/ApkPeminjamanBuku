@@ -14,18 +14,12 @@ class PetugasController extends Controller
 {
     public function index() 
     {
-        // Menunggu approval (status pending)
         $waitingApproval = Peminjaman::where('status', 'pending')->count();
-        
-        // Alat yang sedang dipinjam (status disetujui)
         $alatDipinjam = Peminjaman::where('status', 'disetujui')->sum('jumlah');
-        
-        // Selesai hari ini (status selesai atau dikembalikan)
         $selesaiHariIni = Peminjaman::where('status', 'selesai')
                                     ->whereDate('tgl_dikembalikan', Carbon::today())
                                     ->count();
 
-        // Antrean tugas (pending dan dikembalikan)
         $antreanTugas = Peminjaman::with(['user', 'alat'])
                                     ->whereIn('status', ['pending', 'dikembalikan'])
                                     ->orderBy('created_at', 'desc')
@@ -111,8 +105,6 @@ class PetugasController extends Controller
         $kondisiUnits = $request->kondisi_unit;
         $waktuSekarang = Carbon::now('Asia/Jakarta');
         $total_denda = 0;
-        
-        // HITUNG DENDA KETERLAMBATAN (PER HARI)
         $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
         $tanggalKembali = $waktuSekarang->copy()->startOfDay();
         $dendaTerlambat = 0;
@@ -122,8 +114,7 @@ class PetugasController extends Controller
             $dendaTerlambat = $selisihHari * 5000;
             $total_denda += $dendaTerlambat;
         }
-        
-        // HITUNG DENDA KONDISI (PER UNIT)
+
         $hargaAlat = $pinjam->alat->harga_asli ?? $pinjam->alat->harga_sewa ?? 0;
         $dendaKondisi = 0;
         
@@ -154,23 +145,11 @@ class PetugasController extends Controller
         
         $total_denda += $dendaKondisi;
         $total_denda = max(0, $total_denda);
-        
-        // ========== LOGIKA STOK YANG BENAR ==========
         $alat = $pinjam->alat;
-        
-        // Stok awal sudah berkurang saat peminjaman disetujui
-        // Sekarang atur pengembalian stok berdasarkan kondisi:
-        
-        // 1. BAIK dan LECET: stok DIKEMBALIKAN (karena masih bisa dipinjam)
         $stokDikembalikan = $countBaik + $countLecet;
         if ($stokDikembalikan > 0) {
             $alat->increment('stok_tersedia', $stokDikembalikan);
         }
-        
-        // 2. RUSAK dan HILANG: stok TIDAK DIKEMBALIKAN (tidak bisa dipinjam)
-        // Tidak perlu melakukan apa-apa, stok tetap berkurang
-        
-        // UPDATE DATA PEMINJAMAN
         $ringkasanKondisi = "Baik:{$countBaik}, Lecet:{$countLecet}, Rusak:{$countRusak}, Hilang:{$countHilang}";
         
         $pinjam->update([
@@ -204,7 +183,6 @@ class PetugasController extends Controller
         $query = Peminjaman::with(['user', 'alat']);
 
         if ($tgl_mulai && $tgl_selesai) {
-            // PERBAIKAN: Gunakan whereDate agar menangkap seluruh tanggal
             $query->whereDate('created_at', '>=', $tgl_mulai)
                 ->whereDate('created_at', '<=', $tgl_selesai);
         }

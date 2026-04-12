@@ -12,7 +12,6 @@ class UserController extends Controller
 {
     public function users()
     {
-        // Mengambil semua user yang rolenya bukan admin
         $users = User::whereIn('role', ['peminjam', 'petugas'])->paginate(10);
         return view('admin.kelola_user', compact('users'));
     }
@@ -68,8 +67,6 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
-        // Cek apakah user sedang meminjam alat
         $sedangMeminjam = Peminjaman::where('user_id', $id)
             ->whereIn('status', ['disetujui', 'pending', 'dikembalikan'])
             ->exists();

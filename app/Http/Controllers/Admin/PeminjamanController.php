@@ -18,8 +18,6 @@ class PeminjamanController extends Controller
     {
         $users = User::where('role', 'peminjam')->orderBy('name')->get();
         $alats = Alat::where('stok_tersedia', '>', 0)->get();
-        
-        // TAMPILKAN SEMUA STATUS (pending, disetujui, selesai, ditolak, dikembalikan)
         $peminjamanBerlangsung = Peminjaman::with(['user', 'alat'])
             ->latest()
             ->paginate(10);
@@ -39,7 +37,6 @@ class PeminjamanController extends Controller
 
         $tglPinjam = now()->startOfDay(); 
         $tglKembali = Carbon::parse($request->tgl_kembali)->startOfDay();
-        
         $durasi = $tglPinjam->diffInDays($tglKembali);
 
         if ($durasi > 3) {
@@ -47,7 +44,6 @@ class PeminjamanController extends Controller
         }
 
         $alat = Alat::findOrFail($request->alat_id);
-
         if ($alat->stok_tersedia < $request->jumlah) {
             return back()->with('error', 'Stok alat tidak mencukupi!');
         }
@@ -68,8 +64,7 @@ class PeminjamanController extends Controller
     public function destroyPeminjaman($id)
     {
         $pinjam = Peminjaman::findOrFail($id);
-
-        // Jika status disetujui, kembalikan stok dulu
+        
         if ($pinjam->status == 'disetujui') {
             $pinjam->alat->increment('stok_tersedia', $pinjam->jumlah);
         }
@@ -84,12 +79,10 @@ class PeminjamanController extends Controller
         $status = $request->status;
 
         if ($status == 'disetujui') {
-            // CEK STOK
             if ($pinjam->alat->stok_tersedia < $pinjam->jumlah) {
                 return back()->with('error', 'Stok alat tidak mencukupi! Stok tersedia: ' . $pinjam->alat->stok_tersedia);
             }
-            
-            // KURANGI STOK
+
             $pinjam->alat->decrement('stok_tersedia', $pinjam->jumlah);
             $pinjam->update(['status' => 'disetujui']);
             
@@ -103,10 +96,6 @@ class PeminjamanController extends Controller
         return back()->with('error', 'Status tidak valid!');
     }
 
-    /**
-     * ADMIN LANGSUNG KEMBALIKAN ALAT (dengan pilih kondisi)
-     * HANYA UNTUK STATUS 'disetujui'
-     */
     public function kembalikanPeminjaman(Request $request, $id)
     {
         $request->validate([
@@ -123,8 +112,6 @@ class PeminjamanController extends Controller
         $kondisi = $request->kondisi;
         $waktuSekarang = Carbon::now('Asia/Jakarta');
         $total_denda = 0;
-        
-        // Denda keterlambatan (berdasarkan TANGGAL)
         $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
         $tanggalKembali = $waktuSekarang->copy()->startOfDay();
         
@@ -132,8 +119,7 @@ class PeminjamanController extends Controller
             $selisihHari = $deadline->diffInDays($tanggalKembali);
             $total_denda += ($selisihHari * 5000);
         }
-        
-        // Denda kondisi
+
         switch ($kondisi) {
             case 'hilang':
                 $hargaAlat = $pinjam->alat->harga_asli ?? $pinjam->alat->harga_sewa ?? 0;

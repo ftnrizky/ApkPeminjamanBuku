@@ -8,52 +8,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @stack('styles')
-    
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .sidebar-active {
             background: linear-gradient(to right, #10b981, #059669);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
+        aside { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex h-screen overflow-hidden relative">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-    {{-- SIDEBAR --}}
-    <aside class="w-72 bg-[#062c21] text-white flex flex-col shadow-2xl">
-        <div class="p-8 flex items-center gap-3">
-            <div class="bg-emerald-500 p-2 rounded-xl rotate-3">
-                <i class="fas fa-running text-white text-xl"></i>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#062c21] text-white flex flex-col shadow-2xl z-50 -translate-x-full lg:translate-x-0 lg:relative lg:flex">
+        <div class="p-8 flex items-center justify-between lg:justify-start gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500 p-2 rounded-xl rotate-3">
+                    <i class="fas fa-running text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight italic">SPORT<span class="text-emerald-400">RENT</span></span>
             </div>
-            <span class="text-xl font-extrabold tracking-tight italic">SPORT<span class="text-emerald-400">RENT</span></span>
+            <button onclick="toggleSidebar()" class="lg:hidden text-white/50 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
 
-        <nav class="flex-1 px-6 space-y-2">
+        <nav class="flex-1 px-6 space-y-2 overflow-y-auto">
             <p class="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] mb-4">Main Menu</p>
-            
-            <a href="{{ route('admin.dashboard') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
                 <i class="fas fa-chart-pie w-5"></i> Dashboard
             </a>
-            <a href="{{ route('admin.kelola_user') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.kelola_user') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+            <a href="{{ route('admin.kelola_user') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.kelola_user') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
                 <i class="fas fa-user-friends w-5"></i> Kelola User
             </a>
-            <a href="{{ route('admin.alat') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.alat') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+            <a href="{{ route('admin.alat') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.alat') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
                 <i class="fas fa-volleyball-ball w-5"></i> Kelola Alat
             </a>
-            
             <div class="pt-6">
                 <p class="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] mb-4">Transaksi</p>
-                <a href="{{ route('admin.peminjaman') }}" 
-                   class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 {{ request()->routeIs('admin.peminjaman') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+                <a href="{{ route('admin.peminjaman') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 {{ request()->routeIs('admin.peminjaman') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
                     <i class="fas fa-calendar-plus w-5"></i> Kelola Peminjaman
                 </a>
-                <a href="{{ route('admin.pengembalian') }}" 
-                   class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.pengembalian') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
+                <a href="{{ route('admin.pengembalian') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.pengembalian') ? 'sidebar-active text-white' : 'hover:bg-white/10 text-emerald-100/70 hover:text-white' }}">
                     <i class="fas fa-file-import w-5"></i> Kelola Pengembalian
                 </a>
             </div>
@@ -69,13 +67,38 @@
         </div>
     </aside>
 
-    {{-- MAIN CONTENT --}}
-    <main class="flex-1 overflow-y-auto p-10">
-        @yield('content')
-    </main>
+    <main class="flex-1 overflow-y-auto">
+        <header class="lg:hidden bg-white border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 z-30">
+            <div class="flex items-center gap-2">
+                <div class="bg-emerald-500 p-1.5 rounded-lg">
+                    <i class="fas fa-running text-white text-sm"></i>
+                </div>
+                <span class="font-bold tracking-tight">SPORT<span class="text-emerald-500">RENT</span></span>
+            </div>
+            <button onclick="toggleSidebar()" class="text-gray-500 hover:text-emerald-600 transition-colors p-2">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </header>
 
+        <div class="p-6 lg:p-10">
+            @yield('content')
+        </div>
+    </main>
 </div>
 
+<script>
+    function toggleSidebar() {
+        const s = document.getElementById('sidebar');
+        const o = document.getElementById('sidebarOverlay');
+        if (s.classList.contains('-translate-x-full')) {
+            s.classList.remove('-translate-x-full');
+            o.classList.remove('hidden');
+        } else {
+            s.classList.add('-translate-x-full');
+            o.classList.add('hidden');
+        }
+    }
+</script>
 @stack('scripts')
 </body>
 </html>
