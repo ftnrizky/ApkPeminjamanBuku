@@ -98,8 +98,8 @@ class PetugasController extends Controller
     public function prosesKonfirmasiKembali(Request $request, $id)
     {
         $request->validate([
-            'kondisi' => 'required|in:baik,lecet,rusak,hilang',
-            'catatan' => 'nullable|string|max:500'
+            'kondisi_unit' => 'required|array',
+            'kondisi_unit.*' => 'required|in:baik,lecet,rusak,hilang',
         ]);
 
         $pinjam = Peminjaman::with('alat')->findOrFail($id);
@@ -108,66 +108,82 @@ class PetugasController extends Controller
             return redirect()->back()->with('error', 'Status peminjaman tidak valid untuk dikonfirmasi!');
         }
         
-        $kondisiBaru = $request->kondisi;
+        $kondisiUnits = $request->kondisi_unit;
         $waktuSekarang = Carbon::now('Asia/Jakarta');
         $total_denda = 0;
         
-        // HITUNG DENDA KETERLAMBATAN
-        $deadline = Carbon::parse($pinjam->tgl_kembali)->endOfDay();
+        // HITUNG DENDA KETERLAMBATAN (PER HARI)
+        $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
+        $tanggalKembali = $waktuSekarang->copy()->startOfDay();
+        $dendaTerlambat = 0;
         
-        if ($waktuSekarang->gt($deadline)) {
-            $selisihHari = $waktuSekarang->diffInDays(Carbon::parse($pinjam->tgl_kembali)->startOfDay());
-            $total_denda += ($selisihHari * 5000);
+        if ($tanggalKembali->gt($deadline)) {
+            $selisihHari = $deadline->diffInDays($tanggalKembali);
+            $dendaTerlambat = $selisihHari * 5000;
+            $total_denda += $dendaTerlambat;
         }
         
-        // HITUNG DENDA KONDISI
-        switch ($kondisiBaru) {
-            case 'hilang':
-                $hargaAlat = $pinjam->alat->harga_asli ?? $pinjam->alat->harga_sewa ?? 0;
-                $total_denda += ($hargaAlat * $pinjam->jumlah);
-                break;
-            case 'rusak':
-                $total_denda += 50000;
-                break;
-            case 'lecet':
-                $total_denda += 15000;
-                break;
-            case 'baik':
-                $total_denda += 0;
-                break;
+        // HITUNG DENDA KONDISI (PER UNIT)
+        $hargaAlat = $pinjam->alat->harga_asli ?? $pinjam->alat->harga_sewa ?? 0;
+        $dendaKondisi = 0;
+        
+        $countBaik = 0;
+        $countLecet = 0;
+        $countRusak = 0;
+        $countHilang = 0;
+        
+        foreach ($kondisiUnits as $kondisi) {
+            switch ($kondisi) {
+                case 'hilang':
+                    $dendaKondisi += $hargaAlat;
+                    $countHilang++;
+                    break;
+                case 'rusak':
+                    $dendaKondisi += 50000;
+                    $countRusak++;
+                    break;
+                case 'lecet':
+                    $dendaKondisi += 15000;
+                    $countLecet++;
+                    break;
+                case 'baik':
+                    $countBaik++;
+                    break;
+            }
         }
         
+        $total_denda += $dendaKondisi;
         $total_denda = max(0, $total_denda);
         
-        // ========== LOGIKA STOK ==========
+        // ========== LOGIKA STOK YANG BENAR ==========
         $alat = $pinjam->alat;
         
-        if ($kondisiBaru == 'hilang' || $kondisiBaru == 'rusak') {
-            // HILANG atau RUSAK: stok tetap berkurang (tidak dikembalikan)
-            $alat->decrement('stok_tersedia', $pinjam->jumlah);
-            $alat->decrement('stok_total', $pinjam->jumlah);
-            
-        } elseif ($kondisiBaru == 'lecet') {
-            // LECET: stok dikembalikan (masih bisa dipinjam)
-            $alat->increment('stok_tersedia', $pinjam->jumlah);
-            // Stok total tetap (tidak berkurang)
-            
-        } elseif ($kondisiBaru == 'baik') {
-            // BAIK: stok dikembalikan normal
-            $alat->increment('stok_tersedia', $pinjam->jumlah);
-            // Stok total tetap
+        // Stok awal sudah berkurang saat peminjaman disetujui
+        // Sekarang atur pengembalian stok berdasarkan kondisi:
+        
+        // 1. BAIK dan LECET: stok DIKEMBALIKAN (karena masih bisa dipinjam)
+        $stokDikembalikan = $countBaik + $countLecet;
+        if ($stokDikembalikan > 0) {
+            $alat->increment('stok_tersedia', $stokDikembalikan);
         }
         
+        // 2. RUSAK dan HILANG: stok TIDAK DIKEMBALIKAN (tidak bisa dipinjam)
+        // Tidak perlu melakukan apa-apa, stok tetap berkurang
+        
         // UPDATE DATA PEMINJAMAN
+        $ringkasanKondisi = "Baik:{$countBaik}, Lecet:{$countLecet}, Rusak:{$countRusak}, Hilang:{$countHilang}";
+        
         $pinjam->update([
             'status'           => 'selesai',
-            'kondisi'          => $kondisiBaru,
+            'kondisi'          => $kondisiUnits[0] ?? 'baik',
             'total_denda'      => $total_denda,
             'tgl_dikembalikan' => $waktuSekarang,
-            'tujuan'           => $request->catatan ?? $pinjam->tujuan,
+            'tujuan'           => $ringkasanKondisi,
         ]);
         
-        $message = "Pengembalian berhasil diproses! Kondisi: " . ucfirst($kondisiBaru) . 
+        $message = "Pengembalian berhasil diproses! Ringkasan: {$ringkasanKondisi} | " .
+                "Denda Terlambat: Rp " . number_format($dendaTerlambat, 0, ',', '.') . 
+                " | Denda Kondisi: Rp " . number_format($dendaKondisi, 0, ',', '.') .
                 " | Total Denda: Rp " . number_format($total_denda, 0, ',', '.');
         
         return redirect()->route('petugas.menyetujui_kembali')->with('success', $message);

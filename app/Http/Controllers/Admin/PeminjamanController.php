@@ -124,7 +124,7 @@ class PeminjamanController extends Controller
         $waktuSekarang = Carbon::now('Asia/Jakarta');
         $total_denda = 0;
         
-        // Denda keterlambatan
+        // Denda keterlambatan (berdasarkan TANGGAL)
         $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
         $tanggalKembali = $waktuSekarang->copy()->startOfDay();
         
@@ -165,15 +165,12 @@ class PeminjamanController extends Controller
         
         $pinjam->update($updateData);
         
-        // ========== LOGIKA STOK YANG BENAR ==========
         if ($kondisi == 'baik' || $kondisi == 'lecet') {
-            // BAIK atau LECET: stok dikembalikan (masih bisa dipinjam)
             $pinjam->alat()->increment('stok_tersedia', $pinjam->jumlah);
         }
-        // RUSAK atau HILANG: stok TIDAK dikembalikan (tidak bisa dipinjam)
         
         $message = "Pengembalian berhasil diproses! Kondisi: " . ucfirst($kondisi) . 
-                " | Total Denda: Rp " . number_format($total_denda, 0, ',', '.');
+                   " | Total Denda: Rp " . number_format($total_denda, 0, ',', '.');
         
         return redirect()->route('admin.pengembalian')->with('success', $message);
     }

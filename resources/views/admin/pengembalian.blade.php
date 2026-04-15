@@ -32,13 +32,42 @@
                 <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center w-36">Kode Pinjam</th>
                 <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Alat & Peminjam</th>
                 <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Tgl Dikembalikan</th>
-                <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Kondisi</th>
                 <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Total Denda</th>
-                <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Aksi</th>
+                <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Aksi</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
             @forelse($peminjamans as $data)
+                @php
+                    // Parse kondisi dari kolom 'tujuan'
+                    $countBaik = 0; $countLecet = 0; $countRusak = 0; $countHilang = 0;
+                    if (str_contains($data->tujuan ?? '', 'Baik:')) {
+                        preg_match('/Baik:(\d+), Lecet:(\d+), Rusak:(\d+), Hilang:(\d+)/', $data->tujuan, $matches);
+                        if (count($matches) == 5) {
+                            $countBaik = $matches[1];
+                            $countLecet = $matches[2];
+                            $countRusak = $matches[3];
+                            $countHilang = $matches[4];
+                        }
+                    }
+                    
+                    // Hitung denda terlambat (berdasarkan TANGGAL, bukan jam)
+                    $dendaTerlambat = 0;
+                    if ($data->tgl_dikembalikan && $data->tgl_kembali) {
+                        $deadline = \Carbon\Carbon::parse($data->tgl_kembali)->startOfDay();
+                        $kembali = \Carbon\Carbon::parse($data->tgl_dikembalikan)->startOfDay();
+                        if ($kembali->gt($deadline)) {
+                            $selisihHari = $deadline->diffInDays($kembali);
+                            $dendaTerlambat = $selisihHari * 5000;
+                        }
+                    }
+                    
+                    // Hitung denda kondisi
+                    $dendaKondisi = ($countLecet * 15000) + ($countRusak * 50000);
+                    if ($countHilang > 0) {
+                        $dendaKondisi += $countHilang * ($data->alat->harga_asli ?? 0);
+                    }
+                @endphp
                 <tr class="hover:bg-emerald-50/30 transition-colors group">
                     <td class="px-6 py-4 text-center">
                         <span class="font-bold text-gray-900 text-sm bg-gray-100 px-2 py-1 rounded-lg">
@@ -70,35 +99,13 @@
                     </td>
 
                     <td class="px-6 py-4 text-center">
-                        @php 
-                            $knd = strtolower($data->kondisi ?? 'baik'); 
-                            
-                            $warna = match($knd) {
-                                'baik' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                                'lecet' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                                'rusak' => 'bg-red-100 text-red-700 border-red-200',
-                                'hilang' => 'bg-black text-white border-gray-800',
-                                default => 'bg-gray-100 text-gray-700 border-gray-200'
-                            };
-                        @endphp
-                        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border {{ $warna }}">
-                            {{ strtoupper($data->kondisi ?? 'BAIK') }}
-                        </span>
-                    </td>
-
-                    <td class="px-6 py-4 text-center">
-                        @php
-                            $nilaiDenda = (float) ($data->total_denda ?? 0);
-                        @endphp
-
+                        @php $nilaiDenda = (float) ($data->total_denda ?? 0); @endphp
                         @if($nilaiDenda > 0)
                             <div class="flex flex-col">
                                 <span class="text-rose-600 font-black text-sm">
                                     Rp {{ number_format($nilaiDenda, 0, ',', '.') }}
                                 </span>
-                                <span class="text-[8px] text-rose-400 font-bold uppercase italic tracking-tighter">
-                                    Denda Terbayar
-                                </span>
+                                <span class="text-[8px] text-rose-400 font-bold uppercase italic tracking-tighter">Denda Terbayar</span>
                             </div>
                         @else
                             <div class="flex flex-col items-center">
@@ -108,19 +115,35 @@
                         @endif
                     </td>
                     
-                    <td class="px-6 py-4 text-right">
-                        <form action="{{ route('admin.peminjaman.destroy', $data->id) }}" method="POST" onsubmit="return confirm('Hapus permanen riwayat ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:bg-rose-50 hover:text-rose-500 transition-all border border-gray-200">
-                                <i class="fas fa-trash-alt text-xs"></i>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex justify-center gap-2">
+                            <button onclick="showDetailModal({
+                                id: {{ $data->id }},
+                                user: { name: '{{ addslashes($data->user->name) }}' },
+                                alat: { nama_alat: '{{ addslashes($data->alat->nama_alat) }}', harga_asli: {{ $data->alat->harga_asli ?? 0 }} },
+                                jumlah: {{ $data->jumlah }},
+                                kondisi: '{{ $data->kondisi }}',
+                                tgl_kembali: '{{ $data->tgl_kembali }}',
+                                tgl_dikembalikan: '{{ $data->tgl_dikembalikan }}',
+                                total_denda: {{ $data->total_denda ?? 0 }}
+                            }, {{ $countBaik }}, {{ $countLecet }}, {{ $countRusak }}, {{ $countHilang }}, {{ $dendaTerlambat }}, {{ $dendaKondisi }})" 
+                                    class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-all"
+                                    title="Lihat Detail">
+                                <i class="fas fa-eye text-xs"></i>
                             </button>
-                        </form>
+                            <form action="{{ route('admin.peminjaman.destroy', $data->id) }}" method="POST" onsubmit="return confirm('Hapus permanen riwayat ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:bg-rose-50 hover:text-rose-500 transition-all border border-gray-200">
+                                    <i class="fas fa-trash-alt text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="p-20 text-center text-gray-400 font-bold italic">
+                    <td colspan="5" class="p-20 text-center text-gray-400 font-bold italic">
                         <i class="fas fa-box-open block text-4xl mb-3 opacity-20"></i>
                         Tidak ada data pengembalian ditemukan.
                     </td>
@@ -138,4 +161,109 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL DETAIL -->
+<div id="modalDetail" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/50">
+    <div class="bg-white rounded-2xl max-w-md w-full">
+        <div class="bg-emerald-600 rounded-t-2xl p-4 text-white flex justify-between items-center">
+            <h3 class="font-bold">Detail Pengembalian</h3>
+            <button onclick="closeDetailModal()" class="text-white text-xl">&times;</button>
+        </div>
+        <div class="p-4 space-y-3" id="modalDetailContent"></div>
+        <div class="p-4 pt-0">
+            <button onclick="closeDetailModal()" class="w-full bg-gray-200 py-2 rounded-lg text-sm font-bold">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDetailModal(data, countBaik, countLecet, countRusak, countHilang, dendaTerlambat, dendaKondisi) {
+        // Format tanggal (abaikan jam)
+        const tglKembali = data.tgl_kembali ? new Date(data.tgl_kembali).toLocaleDateString('id-ID') : '-';
+        const tglDikembalikan = data.tgl_dikembalikan ? new Date(data.tgl_dikembalikan).toLocaleDateString('id-ID') : '-';
+        
+        const totalDenda = data.total_denda || 0;
+        
+        let kondisiHtml = '';
+        if (countBaik > 0 || countLecet > 0 || countRusak > 0 || countHilang > 0) {
+            kondisiHtml = `
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="font-bold text-sm mb-2">Detail Kondisi per Unit:</p>
+                    <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                        <div><span class="inline-block w-3 h-3 rounded-full bg-emerald-500"></span> Baik: ${countBaik}</div>
+                        <div><span class="inline-block w-3 h-3 rounded-full bg-yellow-500"></span> Lecet: ${countLecet}</div>
+                        <div><span class="inline-block w-3 h-3 rounded-full bg-red-500"></span> Rusak: ${countRusak}</div>
+                        <div><span class="inline-block w-3 h-3 rounded-full bg-gray-700"></span> Hilang: ${countHilang}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            kondisiHtml = `
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <p class="font-bold text-sm mb-2">Kondisi:</p>
+                    <div class="text-center">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-100 text-emerald-700">${data.kondisi || 'Baik'}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const html = `
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between border-b pb-1">
+                    <span class="text-gray-500">Kode:</span>
+                    <span class="font-bold">PJM-${String(data.id).padStart(4, '0')}</span>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="text-gray-500">Peminjam:</span>
+                    <span class="font-bold">${data.user.name}</span>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="text-gray-500">Alat:</span>
+                    <span class="font-bold">${data.alat.nama_alat}</span>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="text-gray-500">Jumlah:</span>
+                    <span class="font-bold">${data.jumlah} Unit</span>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="text-gray-500">Batas Kembali:</span>
+                    <span class="font-bold">${tglKembali}</span>
+                </div>
+                <div class="flex justify-between border-b pb-1">
+                    <span class="text-gray-500">Tgl Dikembalikan:</span>
+                    <span class="font-bold">${tglDikembalikan}</span>
+                </div>
+                ${kondisiHtml}
+                <div class="bg-emerald-50 p-3 rounded-lg mt-2">
+                    <div class="flex justify-between">
+                        <span>Denda Terlambat:</span>
+                        <span class="font-bold text-rose-600">Rp ${dendaTerlambat.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Denda Kondisi:</span>
+                        <span class="font-bold text-rose-600">Rp ${dendaKondisi.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="border-t pt-2 mt-2 flex justify-between font-bold">
+                        <span>TOTAL DENDA:</span>
+                        <span class="text-rose-700">Rp ${totalDenda.toLocaleString('id-ID')}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modalDetailContent').innerHTML = html;
+        document.getElementById('modalDetail').classList.remove('hidden');
+        document.getElementById('modalDetail').classList.add('flex');
+    }
+    
+    function closeDetailModal() {
+        document.getElementById('modalDetail').classList.add('hidden');
+        document.getElementById('modalDetail').classList.remove('flex');
+    }
+    
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeDetailModal();
+    });
+</script>
 @endsection

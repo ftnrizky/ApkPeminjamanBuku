@@ -13,7 +13,8 @@
             <table class="w-full text-left">
                 <thead>
                     <tr class="bg-slate-50/50 border-b border-slate-100">
-                        <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-24">Kode</th>
+                        {{-- HANYA MENGUBAH INI: w-24 menjadi w-40 --}}
+                        <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-40">Kode</th>
                         <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alat</th>
                         <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Jumlah</th>
                         <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>

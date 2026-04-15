@@ -68,6 +68,9 @@
                             <span class="text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1 rounded-lg">
                                 {{ $item->alat->nama_alat }} <span class="text-emerald-600">({{ $item->jumlah }}x)</span>
                             </span>
+                            <div class="text-[9px] text-emerald-500 font-bold mt-1">
+                                Rp {{ number_format($item->alat->harga_sewa, 0, ',', '.') }} / hari
+                            </div>
                         </td>
 
                         <td class="py-6 px-4">
@@ -137,6 +140,16 @@
                                             <div class="flex justify-between items-center text-xs">
                                                 <span class="font-bold text-gray-500">Jumlah:</span>
                                                 <span class="font-semibold text-gray-800">{{ $item->jumlah }} Unit</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-xs pt-2 border-t">
+                                                <span class="font-bold text-emerald-600">Harga Sewa:</span>
+                                                <span class="font-semibold text-emerald-700">Rp {{ number_format($item->alat->harga_sewa, 0, ',', '.') }} / hari</span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="font-bold text-emerald-600">Estimasi Total:</span>
+                                                <span class="font-semibold text-emerald-700">
+                                                    Rp {{ number_format($item->alat->harga_sewa * $item->jumlah * \Carbon\Carbon::parse($item->tgl_pinjam)->diffInDays($item->tgl_kembali), 0, ',', '.') }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

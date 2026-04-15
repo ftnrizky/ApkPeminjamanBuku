@@ -24,6 +24,10 @@
                 
                 <div class="mt-6 space-y-3 border-t border-slate-50 pt-6">
                     <div class="flex justify-between text-[10px] font-bold uppercase italic">
+                        <span class="text-slate-400">Harga Sewa</span>
+                        <span class="text-emerald-600 font-black">Rp {{ number_format($alat->harga_sewa, 0, ',', '.') }} <span class="text-[9px] text-slate-400">/ hari</span></span>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-bold uppercase italic">
                         <span class="text-slate-400">Tersedia</span>
                         <span class="text-slate-900">{{ $alat->stok_tersedia }} Unit</span>
                     </div>
@@ -70,7 +74,7 @@
                         <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Jumlah Pinjam (Unit)</label>
                         <div class="relative">
                             <i class="fas fa-layer-group absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
-                            <input type="number" name="jumlah" min="1" max="{{ $alat->stok_tersedia }}" placeholder="Maksimal: {{ $alat->stok_tersedia }}" required
+                            <input type="number" name="jumlah" id="jumlah" min="1" max="{{ $alat->stok_tersedia }}" placeholder="Maksimal: {{ $alat->stok_tersedia }}" required
                                    class="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all font-semibold text-sm">
                         </div>
                     </div>
@@ -88,6 +92,27 @@
                             <input type="date" id="tgl_kembali" name="tgl_kembali" 
                                    min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required 
                                    class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all font-semibold text-sm">
+                        </div>
+                    </div>
+
+                    {{-- ESTIMASI BIAYA --}}
+                    <div class="bg-emerald-50 p-5 rounded-[2rem] border border-emerald-100">
+                        <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i class="fas fa-calculator"></i> Estimasi Biaya
+                        </p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Harga Sewa:</span>
+                                <span class="font-bold">Rp {{ number_format($alat->harga_sewa, 0, ',', '.') }} <span class="text-[9px] text-slate-400">/ hari</span></span>
+                            </div>
+                            <div class="flex justify-between" id="durasiRow">
+                                <span class="text-slate-600">Durasi:</span>
+                                <span class="font-bold" id="durasiText">- hari</span>
+                            </div>
+                            <div class="flex justify-between" id="estimasiRow">
+                                <span class="text-slate-600">Estimasi Total:</span>
+                                <span class="font-bold text-emerald-700" id="estimasiTotal">Rp 0</span>
+                            </div>
                         </div>
                     </div>
 
@@ -134,21 +159,51 @@
     document.addEventListener('DOMContentLoaded', function() {
         const tglPinjamInput = document.getElementById('tgl_pinjam');
         const tglKembaliInput = document.getElementById('tgl_kembali');
-
+        const jumlahInput = document.getElementById('jumlah');
+        const hargaSewa = {{ $alat->harga_sewa }};
+        
+        const durasiText = document.getElementById('durasiText');
+        const estimasiTotal = document.getElementById('estimasiTotal');
+        
+        function hitungEstimasi() {
+            if (tglPinjamInput.value && tglKembaliInput.value && jumlahInput.value) {
+                const tglPinjam = new Date(tglPinjamInput.value);
+                const tglKembali = new Date(tglKembaliInput.value);
+                
+                // Hitung durasi dalam hari
+                const diffTime = Math.abs(tglKembali - tglPinjam);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const jumlah = parseInt(jumlahInput.value) || 0;
+                const total = diffDays * hargaSewa * jumlah;
+                
+                durasiText.innerText = diffDays + ' hari';
+                estimasiTotal.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            }
+        }
+        
         function updateConstraints() {
             if (tglPinjamInput.value) {
                 let startDate = new Date(tglPinjamInput.value);
-                
-                // Hitung batas maksimal (3 hari setelah tgl pinjam)
                 let maxDate = new Date(startDate);
                 maxDate.setDate(startDate.getDate() + 3);
-
-                // Set atribut min dan max pada input tgl_kembali
+                
                 tglKembaliInput.min = tglPinjamInput.value;
                 tglKembaliInput.max = maxDate.toISOString().split('T')[0];
+                
+                // Jika tanggal kembali melebihi max, set ke max
+                if (tglKembaliInput.value && new Date(tglKembaliInput.value) > maxDate) {
+                    tglKembaliInput.value = maxDate.toISOString().split('T')[0];
+                }
+                
+                hitungEstimasi();
             }
         }
-
+        
+        // Event listeners
+        tglKembaliInput.addEventListener('change', hitungEstimasi);
+        jumlahInput.addEventListener('input', hitungEstimasi);
+        
         updateConstraints();
     });
 </script>

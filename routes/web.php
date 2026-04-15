@@ -52,7 +52,7 @@ Route::middleware(['auth', 'role:petugas'])->group(function () {
 
     //Menyetujui Pengembalian
     Route::get('/petugas/menyetujui_pengembalian', [PetugasController::class, 'menyetujuiPengembalian'])->name('petugas.menyetujui_kembali');
-    Route::patch('/petugas/pengembalian/{id}/konfirmasi', [PetugasController::class, 'prosesKonfirmasiKembali'])->name('petugas.kembali.proses');
+    Route::patch('/petugas/kembali/proses/{id}', [PetugasController::class, 'prosesKonfirmasiKembali'])->name('petugas.kembali.proses');
     
     Route::get('/petugas/laporan', [PetugasController::class, 'cetakLaporan'])->name('petugas.laporan');
     Route::get('/petugas/laporan/pdf', [PetugasController::class, 'exportPdf'])->name('petugas.laporan.pdf');
