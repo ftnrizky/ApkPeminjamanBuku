@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Alat;
 use App\Models\Peminjaman;
+use App\Models\Notifikasi;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -49,31 +50,69 @@ class PetugasController extends Controller
 
     public function prosesPersetujuanPinjam(Request $request, $id)
     {
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+            'jumlah_disetujui' => 'nullable|integer|min:1',
+        ]);
+
         $peminjaman = Peminjaman::findOrFail($id);
         $alat = $peminjaman->alat;
 
         if ($request->status == 'disetujui') {
-            if ($alat->stok_tersedia < $peminjaman->jumlah) {
+            $jumlahDisetujui = $request->jumlah_disetujui ?? $peminjaman->jumlah;
+
+            if ($jumlahDisetujui > $peminjaman->jumlah) {
+                return back()->with('error', 'Jumlah yang disetujui tidak boleh melebihi jumlah yang diajukan!');
+            }
+
+            if ($alat->stok_tersedia < $jumlahDisetujui) {
                 return back()->with('error', 'Stok alat tidak mencukupi!');
             }
-            
-            $alat->decrement('stok_tersedia', $peminjaman->jumlah);
-            $peminjaman->update(['status' => 'disetujui']);
-            
+
+            $alat->decrement('stok_tersedia', $jumlahDisetujui);
+            $peminjaman->update([
+                'status' => 'disetujui',
+                'jumlah' => $jumlahDisetujui
+            ]);
+
+            Notifikasi::create([
+                'user_id' => $peminjaman->user_id,
+                'title' => 'Peminjaman Disetujui',
+                'message' => 'Peminjaman laptop ' . $alat->nama_alat . ' telah disetujui. Jumlah: ' . $jumlahDisetujui . ' unit.',
+                'type' => 'success',
+                'icon' => 'fas fa-check-circle',
+                'action_url' => route('peminjam.kembali'),
+            ]);
+
+            session()->flash('peminjaman_disetujui', 'Peminjaman laptop ' . $alat->nama_alat . ' telah disetujui! Jumlah: ' . $jumlahDisetujui . ' unit');
+
+            return back()->with('success', 'Peminjaman berhasil disetujui dengan jumlah ' . $jumlahDisetujui . ' unit!');
+
         } elseif ($request->status == 'ditolak') {
             $peminjaman->update(['status' => 'ditolak']);
-            
+
+            Notifikasi::create([
+                'user_id' => $peminjaman->user_id,
+                'title' => 'Peminjaman Ditolak',
+                'message' => 'Permintaan peminjaman laptop ' . $alat->nama_alat . ' telah ditolak.',
+                'type' => 'danger',
+                'icon' => 'fas fa-times-circle',
+                'action_url' => route('peminjam.riwayat'),
+            ]);
+
+            return back()->with('success', 'Peminjaman berhasil ditolak!');
+
         } elseif ($request->has('kondisi')) {
             $peminjaman->update([
                 'status' => 'dikembalikan',
                 'catatan' => $request->kondisi
             ]);
-            
+
             $alat->increment('stok_tersedia', $peminjaman->jumlah);
             return redirect()->back()->with('success', 'Alat berhasil dikembalikan!');
         }
 
-        return back()->with('success', 'Status berhasil diperbarui!');
+        return back()->with('error', 'Status tidak valid!');
     }
 
     /* ==============================
@@ -93,7 +132,9 @@ class PetugasController extends Controller
     {
         $request->validate([
             'kondisi_unit' => 'required|array',
-            'kondisi_unit.*' => 'required|in:baik,lecet,rusak,hilang',
+            'kondisi_unit.*' => 'required|in:baik,lecet,rusak,hilang,lainnya',
+            'custom_biaya' => 'nullable|array',
+            'custom_biaya.*' => 'nullable|numeric|min:0',
         ]);
 
         $pinjam = Peminjaman::with('alat')->findOrFail($id);
@@ -105,37 +146,44 @@ class PetugasController extends Controller
         $kondisiUnits = $request->kondisi_unit;
         $waktuSekarang = Carbon::now('Asia/Jakarta');
         $total_denda = 0;
-        $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
-        $tanggalKembali = $waktuSekarang->copy()->startOfDay();
+        $deadline = Carbon::parse($pinjam->tgl_kembali)->setTime(17, 0, 0);
         $dendaTerlambat = 0;
         
-        if ($tanggalKembali->gt($deadline)) {
-            $selisihHari = $deadline->diffInDays($tanggalKembali);
-            $dendaTerlambat = $selisihHari * 5000;
+        if ($waktuSekarang->gt($deadline)) {
+            $minutesLate = $deadline->diffInMinutes($waktuSekarang, false);
+            $daysLate = (int) ceil($minutesLate / 1440);
+            $dendaTerlambat = max(1, $daysLate) * 5000;
             $total_denda += $dendaTerlambat;
         }
 
-        $hargaAlat = $pinjam->alat->harga_asli ?? $pinjam->alat->harga_sewa ?? 0;
+        $hargaAlat = $pinjam->alat->harga_sewa ?? 0;
         $dendaKondisi = 0;
         
         $countBaik = 0;
         $countLecet = 0;
         $countRusak = 0;
         $countHilang = 0;
+        $countCustom = 0;
+        $customBiaya = $request->custom_biaya ?? [];
         
-        foreach ($kondisiUnits as $kondisi) {
+        foreach ($kondisiUnits as $index => $kondisi) {
             switch ($kondisi) {
                 case 'hilang':
-                    $dendaKondisi += $hargaAlat;
+                    $dendaKondisi += 500000;
                     $countHilang++;
                     break;
                 case 'rusak':
-                    $dendaKondisi += 50000;
+                    $dendaKondisi += 200000;
                     $countRusak++;
                     break;
                 case 'lecet':
-                    $dendaKondisi += 15000;
+                    $dendaKondisi += 50000;
                     $countLecet++;
+                    break;
+                case 'lainnya':
+                    $customValue = isset($customBiaya[$index]) ? (int) $customBiaya[$index] : 0;
+                    $dendaKondisi += max(0, $customValue);
+                    $countCustom++;
                     break;
                 case 'baik':
                     $countBaik++;
@@ -146,11 +194,11 @@ class PetugasController extends Controller
         $total_denda += $dendaKondisi;
         $total_denda = max(0, $total_denda);
         $alat = $pinjam->alat;
-        $stokDikembalikan = $countBaik + $countLecet;
+        $stokDikembalikan = $countBaik + $countLecet + $countRusak + $countCustom;
         if ($stokDikembalikan > 0) {
             $alat->increment('stok_tersedia', $stokDikembalikan);
         }
-        $ringkasanKondisi = "Baik:{$countBaik}, Lecet:{$countLecet}, Rusak:{$countRusak}, Hilang:{$countHilang}";
+        $ringkasanKondisi = "Baik:{$countBaik}, Lecet:{$countLecet}, Rusak:{$countRusak}, Hilang:{$countHilang}, Lainnya:{$countCustom}";
         
         $pinjam->update([
             'status'           => 'selesai',
@@ -159,6 +207,15 @@ class PetugasController extends Controller
             'tgl_dikembalikan' => $waktuSekarang,
             'tujuan'           => $ringkasanKondisi,
         ]);
+
+        Notifikasi::create([
+            'user_id' => $pinjam->user_id,
+            'title' => 'Pengembalian Dikonfirmasi',
+            'message' => 'Pengembalian ' . $pinjam->alat->nama_alat . ' telah dikonfirmasi. Total denda: Rp ' . number_format($total_denda, 0, ',', '.'),
+            'type' => 'success',
+            'icon' => 'fas fa-check-circle',
+            'action_url' => route('peminjam.riwayat'),
+        ]);
         
         $message = "Pengembalian berhasil diproses! Ringkasan: {$ringkasanKondisi} | " .
                 "Denda Terlambat: Rp " . number_format($dendaTerlambat, 0, ',', '.') . 
@@ -166,6 +223,29 @@ class PetugasController extends Controller
                 " | Total Denda: Rp " . number_format($total_denda, 0, ',', '.');
         
         return redirect()->route('petugas.menyetujui_kembali')->with('success', $message);
+    }
+
+    public function kirimPengingat($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+        
+        if ($peminjaman->status != 'disetujui') {
+            return response()->json(['success' => false, 'message' => 'Peminjaman belum disetujui atau sudah dikembalikan!']);
+        }
+
+        // Set session flash untuk peminjam
+        session()->flash('pengembalian_reminder', 'Pengingat: Laptop ' . $peminjaman->alat->nama_alat . ' harus segera dikembalikan! Batas waktu: ' . \Carbon\Carbon::parse($peminjaman->tgl_kembali)->format('d/m/Y'));
+
+        Notifikasi::create([
+            'user_id' => $peminjaman->user_id,
+            'title' => 'Pengingat Pengembalian',
+            'message' => 'Laptop ' . $peminjaman->alat->nama_alat . ' harus segera dikembalikan. Batas waktu: ' . \Carbon\Carbon::parse($peminjaman->tgl_kembali)->format('d/m/Y'),
+            'type' => 'warning',
+            'icon' => 'fas fa-bell',
+            'action_url' => route('peminjam.kembali'),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Pengingat berhasil dikirim ke peminjam!']);
     }
 
     public function cetakLaporan() 

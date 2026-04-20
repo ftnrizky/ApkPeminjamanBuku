@@ -8,7 +8,7 @@
             <div class="bg-[#062c21] p-2 rounded-xl rotate-3 shadow-lg shadow-emerald-500/20">
                 <i class="fas fa-envelope-open-text text-white text-lg"></i>
             </div>
-            <span class="text-lg font-extrabold tracking-tight italic text-[#062c21]">SPORT<span class="text-emerald-500">RENT</span></span>
+            <span class="text-lg font-extrabold tracking-tight italic text-[#062c21]">E-Laptop<span class="text-emerald-500">E-Laptop</span></span>
         </div>
 
         <div class="mb-8">

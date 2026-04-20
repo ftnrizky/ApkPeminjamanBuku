@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\User;
 use App\Models\Peminjaman;
 
@@ -23,7 +24,8 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'no_hp' => 'nullable|string|max:15',
             'password' => 'required|string|min:6',
-            'role' => 'nullable|in:peminjam,petugas'
+            'role' => 'nullable|in:peminjam,petugas',
+            'is_blacklisted' => 'sometimes|boolean',
         ]);
 
         User::create([
@@ -32,6 +34,7 @@ class UserController extends Controller
             'no_hp' => $request->no_hp,
             'password' => Hash::make($request->password),
             'role' => $request->role ?? 'peminjam',
+            'is_blacklisted' => $request->boolean('is_blacklisted'),
         ]);
 
         return redirect()->route('admin.kelola_user')->with('success', 'Member berhasil ditambahkan!');
@@ -45,7 +48,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'no_hp' => 'nullable|string|max:15',
-            'role' => 'required|in:peminjam,petugas'
+            'role' => 'required|in:peminjam,petugas',
+            'is_blacklisted' => 'sometimes|boolean',
         ]);
 
         $data = [
@@ -53,6 +57,7 @@ class UserController extends Controller
             'email' => $request->email,
             'no_hp' => $request->no_hp,
             'role' => $request->role,
+            'is_blacklisted' => $request->boolean('is_blacklisted'),
         ];
 
         if ($request->filled('password')) {
@@ -77,5 +82,31 @@ class UserController extends Controller
         
         $user->delete();
         return redirect()->route('admin.kelola_user')->with('success', 'Member telah dihapus!');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $tgl_mulai = $request->query('tgl_mulai');
+        $tgl_selesai = $request->query('tgl_selesai');
+
+        $query = User::whereIn('role', ['peminjam', 'petugas']);
+
+        if ($tgl_mulai && $tgl_selesai) {
+            $query->whereDate('created_at', '>=', $tgl_mulai)
+                  ->whereDate('created_at', '<=', $tgl_selesai);
+        } elseif ($tgl_mulai) {
+            $query->whereDate('created_at', '>=', $tgl_mulai);
+        } elseif ($tgl_selesai) {
+            $query->whereDate('created_at', '<=', $tgl_selesai);
+        }
+
+        $users = $query->orderBy('name')->get();
+        $totalUsers = $users->count();
+        $totalPeminjam = $users->where('role', 'peminjam')->count();
+        $totalPetugas = $users->where('role', 'petugas')->count();
+
+        $pdf = Pdf::loadView('admin.users_pdf', compact('users', 'tgl_mulai', 'tgl_selesai', 'totalUsers', 'totalPeminjam', 'totalPetugas'));
+
+        return $pdf->download('laporan-member-' . now()->format('Y-m-d') . '.pdf');
     }
 }

@@ -10,12 +10,17 @@ class Alat extends Model
         'nama_alat',
         'slug',
         'kategori',
+        'kategori_id',
         'deskripsi',
         'stok_total',
         'stok_tersedia',
         'foto',
         'harga_sewa',
-        'harga_asli',
         'kondisi'
     ];
+
+    public function kategoriModel()
+    {
+        return $this->belongsTo(Kategori::class, 'kategori_id');
+    }
 }

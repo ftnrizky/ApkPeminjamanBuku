@@ -1,0 +1,280 @@
+/**
+ * Modal Scroll Control - CSS Styles
+ * Mengendalikan scroll body saat modal terbuka
+ * Kompatibel: Desktop & Mobile (iOS, Android)
+ */
+
+/* ===== DISABLE BODY SCROLL ===== */
+body {
+    scroll-behavior: smooth;
+}
+
+/* Saat modal terbuka, disable scroll pada body */
+body.modal-open {
+    overflow: hidden;
+    height: 100vh;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* Alternatif jika perlu preserve scroll position */
+body.modal-open-preserve {
+    overflow: hidden;
+}
+
+/* ===== PREVENT OVERSCROLL / BOUNCE EFFECT ===== */
+html, body {
+    overscroll-behavior: none;
+    -webkit-overscroll-behavior: none;
+}
+
+/* Prevent bounce di iOS */
+body {
+    position: relative;
+    -webkit-touch-callout: none;
+}
+
+html.modal-open,
+body.modal-open {
+    overscroll-behavior: contain;
+    -webkit-overscroll-behavior: contain;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ===== MODAL CONTAINER ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    transition: opacity 0.3s ease;
+}
+
+/* Modal active state */
+.modal.modal-active {
+    display: flex;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-backdrop.modal-active {
+    opacity: 1;
+}
+
+/* ===== MODAL CONTENT ===== */
+.modal-content {
+    position: relative;
+    z-index: 1000;
+    background: white;
+    border-radius: 12px;
+    max-height: 90vh;
+    max-width: 600px;
+    width: 100%;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
+}
+
+/* Scrollbar styling untuk modal content */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Firefox scrollbar */
+.modal-content {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* ===== MODAL ANIMATIONS ===== */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
+
+.modal-content.closing {
+    animation: slideDown 0.2s ease-in forwards;
+}
+
+/* ===== MOBILE SPECIFIC FIXES ===== */
+@supports (padding: max(0px)) {
+    body.modal-open {
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-left: max(0px, env(safe-area-inset-left));
+    }
+    
+    .modal-content {
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+}
+
+/* iOS Safari specific fix */
+@supports (-webkit-touch-callout: none) {
+    body.modal-open {
+        position: fixed;
+        overflow: hidden;
+        width: 100vw;
+    }
+    
+    .modal-content {
+        -webkit-user-select: text;
+        user-select: text;
+    }
+}
+
+/* ===== ANDROID SPECIFIC FIX ===== */
+/* Prevent rubber band effect on Android */
+body {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body.modal-open {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Allow text selection dalam modal */
+.modal-content,
+.modal-content * {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* ===== FOCUS TRAP ===== */
+body.modal-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 998;
+}
+
+/* ===== FORM ELEMENTS IN MODAL ===== */
+.modal-content input,
+.modal-content textarea,
+.modal-content select,
+.modal-content button {
+    -webkit-user-select: auto;
+    user-select: auto;
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+.modal-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== UTILITY CLASSES ===== */
+.scroll-y-auto {
+    overflow-y: auto;
+}
+
+.scroll-y-hidden {
+    overflow-y: hidden;
+}
+
+.scroll-locked {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height untuk mobile */
+}
+
+/* ===== KEYBOARD NAVIGATION ===== */
+@media (prefers-reduced-motion: reduce) {
+    .modal-content,
+    .modal-backdrop {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ===== LANDSCAPE MODE FIX ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+}
+
+/* ===== LARGE SCREEN OPTIMIZATION ===== */
+@media (min-width: 1024px) {
+    .modal-content {
+        max-height: 85vh;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.modal-content:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Dialog elements compatibility */
+dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    border: none;
+    background: white;
+    border-radius: 12px;
+    max-height: 90vh;
+    max-width: 600px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+}
+
+dialog[open] {
+    animation: slideUp 0.3s ease-out;
+}

@@ -555,7 +555,7 @@
                     "homepage": "https://github.com/dompdf/php-font-lib/blob/master/AUTHORS.md"
                 }
             ],
-            "description": "A library to read, parse, export and make subsets of different types of font files.",
+            "description": "A library to read, parse, export and make subsets of diffeE-Laptop types of font files.",
             "homepage": "https://github.com/dompdf/php-font-lib",
             "support": {
                 "issues": "https://github.com/dompdf/php-font-lib/issues",
@@ -2562,7 +2562,7 @@
                     "homepage": "https://github.com/kylekatarnls"
                 }
             ],
-            "description": "An API extension for DateTime that supports 281 different languages.",
+            "description": "An API extension for DateTime that supports 281 diffeE-Laptop languages.",
             "homepage": "https://carbonphp.github.io/carbon/",
             "keywords": [
                 "date",
@@ -4941,8 +4941,8 @@
             ],
             "authors": [
                 {
-                    "name": "Laurent Bassin",
-                    "email": "laurent@bassin.info"
+                    "name": "LauE-Laptop Bassin",
+                    "email": "lauE-Laptop@bassin.info"
                 },
                 {
                     "name": "Trevor Rowbotham",

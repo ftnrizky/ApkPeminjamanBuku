@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Alat;
 use App\Models\Peminjaman;
+use App\Models\Notifikasi;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PeminjamanController extends Controller
 {
@@ -48,7 +50,7 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Stok alat tidak mencukupi!');
         }
 
-        Peminjaman::create([
+        $peminjaman = Peminjaman::create([
             'user_id'     => $request->user_id,
             'alat_id'     => $request->alat_id,
             'jumlah'      => $request->jumlah,
@@ -57,6 +59,17 @@ class PeminjamanController extends Controller
             'tujuan'      => $request->tujuan,
             'status'      => 'pending',
         ]);
+
+        User::whereIn('role', ['admin', 'petugas'])->get()->each(function ($staff) use ($peminjaman) {
+            Notifikasi::create([
+                'user_id' => $staff->id,
+                'title' => 'Permintaan Peminjaman Baru',
+                'message' => 'Pengguna ' . $peminjaman->user->name . ' mengajukan peminjaman ' . $peminjaman->alat->nama_alat . ' x ' . $peminjaman->jumlah . ' unit.',
+                'type' => 'info',
+                'icon' => 'fas fa-folder-open',
+                'action_url' => route('petugas.menyetujui_peminjaman'),
+            ]);
+        });
         
         return redirect()->back()->with('success', 'Permintaan peminjaman terkirim!');
     }
@@ -75,21 +88,56 @@ class PeminjamanController extends Controller
 
     public function verifikasiPeminjaman(Request $request, $id)
     {
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+            'jumlah_disetujui' => 'nullable|integer|min:1',
+        ]);
+
         $pinjam = Peminjaman::findOrFail($id);
         $status = $request->status;
 
         if ($status == 'disetujui') {
-            if ($pinjam->alat->stok_tersedia < $pinjam->jumlah) {
+            $jumlahDisetujui = $request->jumlah_disetujui ?? $pinjam->jumlah;
+
+            if ($jumlahDisetujui > $pinjam->jumlah) {
+                return back()->with('error', 'Jumlah yang disetujui tidak boleh melebihi jumlah yang diajukan!');
+            }
+
+            if ($pinjam->alat->stok_tersedia < $jumlahDisetujui) {
                 return back()->with('error', 'Stok alat tidak mencukupi! Stok tersedia: ' . $pinjam->alat->stok_tersedia);
             }
 
-            $pinjam->alat->decrement('stok_tersedia', $pinjam->jumlah);
-            $pinjam->update(['status' => 'disetujui']);
-            
-            return back()->with('success', 'Peminjaman berhasil DISETUJUI!');
-            
+            $pinjam->alat->decrement('stok_tersedia', $jumlahDisetujui);
+            $pinjam->update([
+                'status' => 'disetujui',
+                'jumlah' => $jumlahDisetujui
+            ]);
+
+            Notifikasi::create([
+                'user_id' => $pinjam->user_id,
+                'title' => 'Peminjaman Disetujui',
+                'message' => 'Peminjaman laptop ' . $pinjam->alat->nama_alat . ' telah disetujui dengan jumlah ' . $jumlahDisetujui . ' unit.',
+                'type' => 'success',
+                'icon' => 'fas fa-check-circle',
+                'action_url' => route('peminjam.kembali'),
+            ]);
+
+            session()->flash('peminjaman_disetujui', 'Peminjaman laptop ' . $pinjam->alat->nama_alat . ' telah disetujui! Jumlah: ' . $jumlahDisetujui . ' unit');
+
+            return back()->with('success', 'Peminjaman berhasil DISETUJUI dengan jumlah ' . $jumlahDisetujui . ' unit!');
+
         } elseif ($status == 'ditolak') {
             $pinjam->update(['status' => 'ditolak']);
+
+            Notifikasi::create([
+                'user_id' => $pinjam->user_id,
+                'title' => 'Peminjaman Ditolak',
+                'message' => 'Permintaan peminjaman laptop ' . $pinjam->alat->nama_alat . ' telah ditolak.',
+                'type' => 'danger',
+                'icon' => 'fas fa-times-circle',
+                'action_url' => route('peminjam.riwayat'),
+            ]);
+
             return back()->with('success', 'Peminjaman DITOLAK!');
         }
 
@@ -112,24 +160,23 @@ class PeminjamanController extends Controller
         $kondisi = $request->kondisi;
         $waktuSekarang = Carbon::now('Asia/Jakarta');
         $total_denda = 0;
-        $deadline = Carbon::parse($pinjam->tgl_kembali)->startOfDay();
-        $tanggalKembali = $waktuSekarang->copy()->startOfDay();
+        $deadline = Carbon::parse($pinjam->tgl_kembali)->setTime(17, 0, 0);
         
-        if ($tanggalKembali->gt($deadline)) {
-            $selisihHari = $deadline->diffInDays($tanggalKembali);
-            $total_denda += ($selisihHari * 5000);
+        if ($waktuSekarang->gt($deadline)) {
+            $minutesLate = $deadline->diffInMinutes($waktuSekarang, false);
+            $daysLate = (int) ceil($minutesLate / 1440);
+            $total_denda += max(1, $daysLate) * 5000;
         }
 
         switch ($kondisi) {
             case 'hilang':
-                $hargaAlat = $pinjam->alat->harga_asli ?? $pinjam->alat->harga_sewa ?? 0;
-                $total_denda += ($hargaAlat * $pinjam->jumlah);
+                $total_denda += 500000 * $pinjam->jumlah;
                 break;
             case 'rusak':
-                $total_denda += 50000;
+                $total_denda += 200000;
                 break;
             case 'lecet':
-                $total_denda += 15000;
+                $total_denda += 50000;
                 break;
             case 'baik':
                 $total_denda += 0;
@@ -151,9 +198,18 @@ class PeminjamanController extends Controller
         
         $pinjam->update($updateData);
         
-        if ($kondisi == 'baik' || $kondisi == 'lecet') {
+        if ($kondisi == 'baik' || $kondisi == 'lecet' || $kondisi == 'rusak') {
             $pinjam->alat()->increment('stok_tersedia', $pinjam->jumlah);
         }
+
+        Notifikasi::create([
+            'user_id' => $pinjam->user_id,
+            'title' => 'Pengembalian Diproses',
+            'message' => 'Pengembalian ' . $pinjam->alat->nama_alat . ' telah diproses. Total denda: Rp ' . number_format($total_denda, 0, ',', '.'),
+            'type' => 'success',
+            'icon' => 'fas fa-undo-alt',
+            'action_url' => route('peminjam.riwayat'),
+        ]);
         
         $message = "Pengembalian berhasil diproses! Kondisi: " . ucfirst($kondisi) . 
                    " | Total Denda: Rp " . number_format($total_denda, 0, ',', '.');
@@ -185,5 +241,56 @@ class PeminjamanController extends Controller
         $peminjamans = $query->latest('tgl_dikembalikan')->paginate(10);
             
         return view('admin.pengembalian', compact('peminjamans'));
+    }
+
+    public function exportPeminjamanPdf(Request $request)
+    {
+        $query = Peminjaman::with(['user', 'alat']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('alat', function($qAlat) use ($search) {
+                    $qAlat->where('nama_alat', 'like', "%{$search}%");
+                })
+                ->orWhereHas('user', function($qUser) use ($search) {
+                    $qUser->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $peminjamans = $query->latest()->get();
+        $totalPeminjaman = $peminjamans->count();
+        $totalDisetujui = $peminjamans->where('status', 'disetujui')->count();
+        $totalPending = $peminjamans->where('status', 'pending')->count();
+        $totalDitolak = $peminjamans->where('status', 'ditolak')->count();
+
+        $pdf = Pdf::loadView('admin.peminjaman_pdf', compact('peminjamans', 'totalPeminjaman', 'totalDisetujui', 'totalPending', 'totalDitolak'));
+        return $pdf->download('laporan-peminjaman-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    public function exportPengembalianPdf(Request $request)
+    {
+        $query = Peminjaman::with(['user', 'alat'])
+            ->whereNotNull('tgl_dikembalikan');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('alat', function($qAlat) use ($search) {
+                    $qAlat->where('nama_alat', 'like', "%{$search}%");
+                })
+                ->orWhereHas('user', function($qUser) use ($search) {
+                    $qUser->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $peminjamans = $query->latest('tgl_dikembalikan')->get();
+        $totalPengembalian = $peminjamans->count();
+        $totalDenda = $peminjamans->sum('total_denda');
+
+        $pdf = Pdf::loadView('admin.pengembalian_pdf', compact('peminjamans', 'totalPengembalian', 'totalDenda'));
+        return $pdf->download('laporan-pengembalian-' . now()->format('Y-m-d') . '.pdf');
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Alat;
+use App\Models\Kategori;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
 class AlatController extends Controller
@@ -22,8 +24,9 @@ class AlatController extends Controller
         }
 
         $alats = $query->latest()->get();
+        $kategoris = Kategori::orderBy('nama')->get();
 
-        return view('admin.alat', compact('alats'));
+        return view('admin.alat', compact('alats', 'kategoris'));
     }
 
     public function storeAlat(Request $request)
@@ -33,21 +36,23 @@ class AlatController extends Controller
             'kategori' => 'required',
             'stok_total' => 'required|numeric',
             'harga_sewa' => 'required|numeric',
-            'harga_asli' => 'required|numeric',
             'kondisi' => 'required',
             'foto' => 'nullable|image|max:2048'
         ]);
 
         $path = $request->hasFile('foto') ? $request->file('foto')->store('alats', 'public') : null;
+        
+        // Cari kategori_id berdasarkan nama kategori
+        $kategoriModel = Kategori::where('nama', $request->kategori)->first();
 
         Alat::create([
             'nama_alat' => $request->nama_alat,
             'slug' => \Illuminate\Support\Str::slug($request->nama_alat) . '-' . \Illuminate\Support\Str::random(5),
             'kategori' => $request->kategori,
+            'kategori_id' => $kategoriModel ? $kategoriModel->id : null,
             'stok_total' => $request->stok_total,
             'stok_tersedia' => $request->stok_total,
             'harga_sewa' => $request->harga_sewa,
-            'harga_asli' => $request->harga_asli,
             'kondisi' => $request->kondisi,
             'deskripsi' => $request->deskripsi,
             'foto' => $path,
@@ -64,7 +69,6 @@ class AlatController extends Controller
             'nama_alat' => 'required',
             'stok_total' => 'required|numeric',
             'harga_sewa' => 'required|numeric',
-            'harga_asli' => 'required|numeric',
             'kondisi' => 'required'
         ]);
 
@@ -73,18 +77,41 @@ class AlatController extends Controller
             $alat->foto = $request->file('foto')->store('alats', 'public');
         }
 
+        // Cari kategori_id berdasarkan nama kategori
+        $kategoriModel = Kategori::where('nama', $request->kategori)->first();
+
         $alat->update([
             'nama_alat' => $request->nama_alat,
             'kategori' => $request->kategori,
+            'kategori_id' => $kategoriModel ? $kategoriModel->id : null,
             'stok_total' => $request->stok_total,
             'stok_tersedia' => $request->stok_total,
             'harga_sewa' => $request->harga_sewa,
-            'harga_asli' => $request->harga_asli,
             'kondisi' => $request->kondisi,
             'deskripsi' => $request->deskripsi,
         ]);
 
         return back()->with('success', 'Data diperbarui!');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Alat::query();
+
+        if ($request->filled('search')) {
+            $query->where('nama_alat', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('kategori') && $request->kategori != 'Semua') {
+            $query->where('kategori', $request->kategori);
+        }
+
+        $alats = $query->latest()->get();
+        $totalAlat = $alats->count();
+        $totalUnit = $alats->sum('stok_total');
+
+        $pdf = Pdf::loadView('admin.alat_pdf', compact('alats', 'totalAlat', 'totalUnit'));
+        return $pdf->download('laporan-katalog-alat-' . now()->format('Y-m-d') . '.pdf');
     }
 
     public function destroy($id)

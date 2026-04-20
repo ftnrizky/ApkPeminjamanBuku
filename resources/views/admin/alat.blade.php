@@ -3,208 +3,317 @@
 @section('title', 'Kelola Alat')
 
 @section('content')
+<!-- Success Alert -->
 @if(session('success'))
-<div class="mb-6 p-4 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center gap-3">
+<div class="mb-6 p-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-xl shadow-lg shadow-cyan-500/20 flex items-center gap-3 border border-cyan-400/30">
     <i class="fas fa-check-circle text-xl"></i>
-    <span class="font-bold text-sm uppercase tracking-wider">{{ session('success') }}</span>
+    <span class="font-bold text-sm">{{ session('success') }}</span>
 </div>
 @endif
 
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-    <div>
-        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Katalog Peralatan</h1>
-        <p class="text-gray-500 text-sm">Kelola stok, harga sewa, dan kondisi aset secara real-time.</p>
-    </div>
+<!-- Header Section -->
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+        <div>
+            <h1 class="text-4xl font-900 text-slate-900 mb-2">Katalog Laptop</h1>
+            <p class="text-slate-600 font-500">Kelola stok, harga sewa, dan kondisi laptop E-Laptop secara real-time</p>
+        </div>
 
-    <div class="flex flex-wrap items-center gap-3">
-        <form action="{{ route('admin.alat') }}" method="GET" class="relative group">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari alat..." 
-                class="w-64 pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-2xl text-xs focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all card-shadow font-semibold">
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors"></i>
-        </form>
+        <!-- Search & Add Button -->
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <form action="{{ route('admin.alat') }}" method="GET" class="relative flex-1 md:flex-initial">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari laptop..."
+                    class="w-full md:w-64 pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none transition-all font-medium">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </form>
 
-        <button onclick="toggleModal('modal-tambah')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-200 transition-all active:scale-95 text-sm">
-            <i class="fas fa-plus-circle"></i> Tambah Alat
-        </button>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.alat.export_pdf', request()->only(['kategori', 'search'])) }}"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-200 bg-white px-5 py-3 text-sm font-semibold text-cyan-700 shadow-sm transition hover:border-cyan-300 hover:bg-cyan-50">
+                    <i class="fas fa-file-pdf text-sm"></i> Export PDF
+                </a>
+                <button onclick="toggleModal('modal-tambah')"
+                    class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-xl font-700 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95 text-sm whitespace-nowrap">
+                    <i class="fas fa-plus-circle"></i> Tambah Laptop
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- FILTER KATEGORI -->
-<div class="flex items-center gap-3 mb-8 overflow-x-auto pb-2 no-scrollbar">
-    @php 
-        $categories = ['Semua' => 'fa-th-large', 'Bola' => 'fa-volleyball-ball', 'Raket' => 'fa-table-tennis', 'Fitness' => 'fa-dumbbell'];
-    @endphp
-    @foreach($categories as $cat => $icon)
-        <a href="{{ route('admin.alat', ['kategori' => $cat, 'search' => request('search')]) }}" 
-           class="px-6 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2
-           {{ (request('kategori', 'Semua') == $cat) ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-100' }}">
-            <i class="fas {{ $icon }}"></i> {{ $cat }}
-        </a>
+<!-- Category Filter -->
+<div class="flex items-center gap-3 mb-8 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible">
+    <a href="{{ route('admin.alat') }}"
+        class="px-4 py-2 rounded-lg text-sm font-700 transition-all whitespace-nowrap flex items-center gap-2 border
+        {{ (!request('kategori'))
+            ? 'bg-cyan-500 text-white border-cyan-500 shadow-lg shadow-cyan-500/20'
+            : 'bg-white text-slate-600 border-slate-200 hover:border-cyan-400/50 hover:text-cyan-600' }}">
+        <i class="fas fa-th-large"></i> Semua
+    </a>
+    @foreach($kategoris as $kat)
+    <a href="{{ route('admin.alat', ['kategori' => $kat->nama, 'search' => request('search')]) }}"
+        class="px-4 py-2 rounded-lg text-sm font-700 transition-all whitespace-nowrap flex items-center gap-2 border
+        {{ (request('kategori') == $kat->nama)
+            ? 'bg-cyan-500 text-white border-cyan-500 shadow-lg shadow-cyan-500/20'
+            : 'bg-white text-slate-600 border-slate-200 hover:border-cyan-400/50 hover:text-cyan-600' }}">
+        <i class="fas {{ $kat->icon }}"></i> {{ $kat->nama }}
+    </a>
     @endforeach
 </div>
 
-<!-- CARD GRID -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Laptops Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     @forelse($alats as $alat)
-    <div class="group bg-white rounded-[2.5rem] p-4 border border-gray-100 card-shadow hover:border-emerald-300 transition-all duration-300">
-        <div class="relative h-48 w-full bg-gray-100 rounded-[2rem] overflow-hidden mb-4">
-            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm z-10
-                {{ $alat->kondisi == 'baik' ? 'text-emerald-600' : ($alat->kondisi == 'lecet' ? 'text-amber-500' : ($alat->kondisi == 'rusak' ? 'text-rose-600' : 'text-gray-500')) }}">
+    <div class="group bg-white rounded-2xl border border-slate-200 hover:border-cyan-400/50 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300">
+        <!-- Image Section -->
+        <div class="relative h-48 bg-slate-100 overflow-hidden flex items-center justify-center">
+            <!-- Condition Badge -->
+            <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-xs font-800 px-3 py-1.5 rounded-lg shadow-md z-10 uppercase tracking-wider
+                {{ $alat->kondisi == 'baik' ? 'text-cyan-600' : ($alat->kondisi == 'lecet' ? 'text-amber-500' : 'text-rose-600') }}">
                 {{ $alat->kondisi }}
             </span>
-            
-            <div class="w-full h-full flex items-center justify-center overflow-hidden">
-                @if($alat->foto)
-                    <img src="{{ asset('storage/' . $alat->foto) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                @else
-                    <div class="flex flex-col items-center">
-                        <i class="fas fa-camera fa-3x text-gray-200"></i>
-                        <p class="text-[9px] text-gray-300 mt-2 font-bold uppercase tracking-widest">No Image</p>
-                    </div>
-                @endif
-            </div>
+
+            <!-- Image Display -->
+            @if($alat->foto)
+                <img src="{{ asset('storage/' . $alat->foto) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            @else
+                <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-laptop text-4xl text-slate-300 mb-2"></i>
+                    <p class="text-xs text-slate-400 font-bold">No Image</p>
+                </div>
+            @endif
         </div>
 
-        <div class="px-2 pb-2">
-            <div class="flex justify-between items-start mb-1">
-                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">{{ $alat->kategori }}</p>
-                <p class="text-[9px] font-black text-gray-300 uppercase">Harga Asli: Rp {{ number_format($alat->harga_asli, 0, ',', '.') }}</p>
+        <!-- Content Section -->
+        <div class="p-4 space-y-3">
+            <!-- Category -->
+            <div class="flex justify-between items-start gap-2">
+                <span class="inline-block px-2.5 py-1 bg-cyan-100 text-cyan-700 text-xs font-700 rounded-lg uppercase tracking-wider">
+                    {{ $alat->kategori }}
+                </span>
             </div>
-            <h3 class="text-lg font-extrabold text-gray-900 leading-tight mb-1 truncate">{{ $alat->nama_alat }}</h3>
-            
-            <p class="text-emerald-600 font-black text-sm mb-2">
-                Rp {{ number_format($alat->harga_sewa, 0, ',', '.') }}<span class="text-[10px] text-gray-400 font-normal"> / hari</span>
+
+            <!-- Product Name -->
+            <h3 class="text-base font-900 text-slate-900 line-clamp-2 leading-tight">{{ $alat->nama_alat }}</h3>
+
+            <!-- Price -->
+            <p class="text-cyan-600 font-900 text-lg">
+                Rp {{ number_format($alat->harga_sewa, 0, ',', '.') }}
+                <span class="text-xs text-slate-400 font-500"> / hari</span>
             </p>
 
-            <p class="text-gray-400 text-xs line-clamp-2 mb-4 h-8 leading-relaxed">
-                {{ $alat->deskripsi ?? 'Tidak ada deskripsi detail untuk alat ini.' }}
+            <!-- Description -->
+            <p class="text-slate-500 text-xs line-clamp-2 leading-relaxed">
+                {{ $alat->deskripsi ?? 'Laptop berkualitas dengan spesifikasi terbaik untuk kebutuhan Anda.' }}
             </p>
-            
-            <div class="flex items-center justify-between py-3 border-t border-gray-50">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase leading-none mb-1">Stok Tersedia</p>
-                    <p class="text-lg font-black text-gray-900">
-                        {{ $alat->stok_tersedia }} <span class="text-xs font-medium text-gray-300">/{{ $alat->stok_total }}</span>
-                    </p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="openEditAlat('{{ $alat->id }}', '{{ addslashes($alat->nama_alat) }}', '{{ $alat->kategori }}', '{{ $alat->stok_total }}', '{{ $alat->kondisi }}', '{{ addslashes($alat->deskripsi) }}', '{{ $alat->foto ? asset('storage/'.$alat->foto) : '' }}', '{{ (int)$alat->harga_sewa }}', '{{ (int)$alat->harga_asli }}')" 
-                            class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center">
-                        <i class="fas fa-edit text-xs"></i>
+
+            <!-- Stock Info -->
+            <div class="pt-3 border-t border-slate-100">
+                <p class="text-xs font-700 text-slate-400 uppercase mb-1.5">Stok Tersedia</p>
+                <p class="text-2xl font-900 text-slate-900">
+                    {{ $alat->stok_tersedia }}
+                    <span class="text-sm font-500 text-slate-400">/{{ $alat->stok_total }}</span>
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2 pt-3 border-t border-slate-100">
+                <button
+                    onclick="openEditAlat(
+                        '{{ $alat->id }}',
+                        '{{ addslashes($alat->nama_alat) }}',
+                        '{{ addslashes($alat->kategori) }}',
+                        '{{ $alat->stok_total }}',
+                        '{{ $alat->kondisi }}',
+                        '{{ addslashes($alat->deskripsi ?? '') }}',
+                        '{{ $alat->foto ? asset('storage/' . $alat->foto) : '' }}',
+                        '{{ (int)$alat->harga_sewa }}'
+                    )"
+                    class="flex-1 px-3 py-2 rounded-lg bg-cyan-50 text-cyan-600 hover:bg-cyan-100 font-700 text-xs transition-colors flex items-center justify-center gap-1.5">
+                    <i class="fas fa-edit text-xs"></i> Edit
+                </button>
+                <form action="{{ route('admin.alat.destroy', $alat->id) }}" method="POST" class="flex-1"
+                    onsubmit="return confirm('Hapus laptop ini?')">
+                    @csrf @method('DELETE')
+                    <button type="submit"
+                        class="w-full px-3 py-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-700 text-xs transition-colors flex items-center justify-center gap-1.5">
+                        <i class="fas fa-trash text-xs"></i> Hapus
                     </button>
-                    <form action="{{ route('admin.alat.destroy', $alat->id) }}" method="POST" onsubmit="return confirm('Hapus alat ini?')">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center">
-                            <i class="fas fa-trash text-xs"></i>
-                        </button>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
     @empty
-    <div class="col-span-full py-20 text-center">
-        <div class="flex flex-col items-center">
-            <i class="fas fa-box-open text-5xl text-gray-200 mb-4"></i>
-            <p class="text-gray-400 font-bold uppercase italic tracking-widest text-xs">Tidak ada data alat ditemukan.</p>
+    <div class="col-span-full py-20 flex flex-col items-center justify-center">
+        <div class="bg-slate-50 rounded-2xl p-8 text-center">
+            <i class="fas fa-inbox text-5xl text-slate-300 mb-4"></i>
+            <p class="text-slate-500 font-700 uppercase text-sm tracking-wide">Tidak ada data laptop ditemukan</p>
         </div>
     </div>
     @endforelse
 </div>
 
-<!-- MODAL TAMBAH ALAT -->
-<div id="modal-tambah" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
-    <div class="fixed inset-0 bg-[#062c21]/60 backdrop-blur-sm transition-opacity" onclick="toggleModal('modal-tambah')"></div>
-    <div class="bg-white rounded-[2.5rem] w-full max-w-lg p-8 relative z-10 shadow-2xl transition-all overflow-y-auto max-h-[90vh]">
-        <h2 class="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6">Tambah <span class="text-emerald-500">Alat Baru</span></h2>
-        <form action="{{ route('admin.alat.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- MODAL TAMBAH LAPTOP                                        --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div id="modal-tambah" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="toggleModal('modal-tambah')"></div>
+    <div class="bg-white rounded-2xl w-full max-w-lg p-8 relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-900 text-slate-900 mb-6">
+            Tambah <span class="text-cyan-600">Laptop Baru</span>
+        </h2>
+
+        <form action="{{ route('admin.alat.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5" id="formTambah">
             @csrf
+
+            <!-- Nama Laptop -->
             <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nama Peralatan</label>
-                <input type="text" name="nama_alat" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-semibold text-sm">
+                <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">
+                    Nama Laptop <span class="text-rose-600">*</span>
+                </label>
+                <input type="text" name="nama_alat" required placeholder="Contoh: ASUS VivoBook 15"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm transition-all">
+                @error('nama_alat')
+                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
+            <!-- Kategori & Kondisi -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
-                    <select name="kategori" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none text-sm font-semibold">
-                        <option value="Bola">Bola</option>
-                        <option value="Raket">Raket</option>
-                        <option value="Fitness">Fitness</option>
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">
+                        Kategori <span class="text-rose-600">*</span>
+                    </label>
+                    <select name="kategori" required
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none text-sm font-medium transition-all">
+                        <option value="">Pilih Kategori</option>
+                        @foreach($kategoris as $kat)
+                        <option value="{{ $kat->nama }}">{{ $kat->nama }}</option>
+                        @endforeach
                     </select>
+                    @error('kategori')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Kondisi Awal</label>
-                    <select name="kondisi" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none text-sm font-semibold">
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">
+                        Kondisi <span class="text-rose-600">*</span>
+                    </label>
+                    <select name="kondisi" required
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none text-sm font-medium transition-all">
+                        <option value="">Pilih Kondisi</option>
                         <option value="baik">Baik</option>
                         <option value="lecet">Lecet</option>
                         <option value="rusak">Rusak</option>
                     </select>
+                    @error('kondisi')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
+            <!-- Stok & Harga -->
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Stok</label>
-                    <input type="number" name="stok_total" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none text-sm font-semibold">
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">
+                        Stok <span class="text-rose-600">*</span>
+                    </label>
+                    <input type="number" name="stok_total" required min="1" placeholder="0"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm transition-all">
+                    @error('stok_total')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Sewa/Hari</label>
-                    <input type="number" name="harga_sewa" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none text-sm font-semibold">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Harga Beli</label>
-                    <input type="number" name="harga_asli" required class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none text-sm font-semibold">
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">
+                        Sewa/Hari <span class="text-rose-600">*</span>
+                    </label>
+                    <input type="number" name="harga_sewa" required min="1000" step="1000" placeholder="50000"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm transition-all">
+                    @error('harga_sewa')
+                        <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
+            <!-- Deskripsi -->
             <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Deskripsi</label>
-                <textarea name="deskripsi" rows="2" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 outline-none text-sm font-medium resize-none"></textarea>
+                <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Deskripsi</label>
+                <textarea name="deskripsi" rows="3" placeholder="Spesifikasi dan keterangan laptop..."
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm resize-none transition-all"></textarea>
+                @error('deskripsi')
+                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
+            <!-- Upload Foto -->
             <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Upload Foto</label>
-                <input type="file" name="foto" accept="image/*" class="w-full px-5 py-2 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700">
+                <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Upload Foto Laptop</label>
+                <input type="file" name="foto" accept="image/*"
+                    class="w-full px-4 py-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-800 file:bg-cyan-100 file:text-cyan-700 hover:border-cyan-400">
+                @error('foto')
+                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="toggleModal('modal-tambah')" class="flex-1 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-50">Batal</button>
-                <button type="submit" class="flex-[2] bg-[#062c21] text-white px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-900/20 hover:bg-emerald-800 transition-all">Simpan Katalog</button>
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="toggleModal('modal-tambah')"
+                    class="flex-1 px-6 py-3 rounded-lg font-800 text-sm uppercase tracking-wider text-slate-600 hover:bg-slate-100 transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="flex-[2] bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-800 text-sm uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+                    Simpan Laptop
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- MODAL EDIT ALAT -->
-<div id="modal-edit" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="toggleModal('modal-edit')"></div>
-    <div class="bg-white rounded-[2.5rem] w-full max-w-lg p-8 relative z-10 shadow-2xl transition-all overflow-y-auto max-h-[90vh]">
-        <h2 class="text-2xl font-black text-slate-900 uppercase italic tracking-tighter mb-6">Edit <span class="text-blue-500">Data Alat</span></h2>
-        <form id="form-edit" action="#" method="POST" enctype="multipart/form-data" class="space-y-4">
-            @csrf @method('PUT')
-            
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- MODAL EDIT LAPTOP                                          --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div id="modal-edit" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="toggleModal('modal-edit')"></div>
+    <div class="bg-white rounded-2xl w-full max-w-lg p-8 relative z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-900 text-slate-900 mb-6">
+            Edit <span class="text-cyan-600">Data Laptop</span>
+        </h2>
+
+        {{-- ✅ action diisi via JS, method spoofing PUT via hidden input --}}
+        <form id="form-edit" action="#" method="POST" enctype="multipart/form-data" class="space-y-5">
+            @csrf
+            <input type="hidden" name="_method" value="PUT">
+
+            <!-- Image Preview -->
             <div class="flex justify-center mb-2">
-                <img id="edit-preview" src="" class="h-24 w-24 object-cover rounded-2xl border-4 border-slate-50 shadow-sm hidden">
+                <img id="edit-preview" src="" alt="Preview"
+                    class="h-24 w-auto object-cover rounded-lg border-2 border-cyan-200 shadow-md hidden">
             </div>
 
+            <!-- Nama Laptop -->
             <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nama Peralatan</label>
-                <input type="text" id="edit-nama" name="nama_alat" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none font-semibold text-sm">
+                <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Nama Laptop</label>
+                <input type="text" id="edit-nama" name="nama_alat" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm transition-all">
             </div>
 
+            <!-- Kategori & Kondisi -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
-                    <select id="edit-kategori" name="kategori" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-semibold">
-                        <option value="Bola">Bola</option>
-                        <option value="Raket">Raket</option>
-                        <option value="Fitness">Fitness</option>
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Kategori</label>
+                    <select id="edit-kategori" name="kategori" required
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none text-sm font-medium transition-all">
+                        @foreach($kategoris as $kat)
+                        <option value="{{ $kat->nama }}">{{ $kat->nama }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Kondisi</label>
-                    <select id="edit-kondisi" name="kondisi" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-semibold">
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Kondisi</label>
+                    <select id="edit-kondisi" name="kondisi" required
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none text-sm font-medium transition-all">
                         <option value="baik">Baik</option>
                         <option value="lecet">Lecet</option>
                         <option value="rusak">Rusak</option>
@@ -212,74 +321,111 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-4">
+            <!-- Stok & Harga -->
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Stok</label>
-                    <input type="number" id="edit-stok" name="stok_total" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-semibold">
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Stok</label>
+                    <input type="number" id="edit-stok" name="stok_total" required min="1"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm transition-all">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Sewa</label>
-                    <input type="number" id="edit-harga" name="harga_sewa" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-semibold">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Beli</label>
-                    <input type="number" id="edit-harga-asli" name="harga_asli" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-semibold">
+                    <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Sewa/Hari</label>
+                    <input type="number" id="edit-harga" name="harga_sewa" required min="1000" step="1000"
+                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm transition-all">
                 </div>
             </div>
 
+            <!-- Deskripsi -->
             <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Deskripsi</label>
-                <textarea id="edit-deskripsi" name="deskripsi" rows="2" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none text-sm font-medium resize-none"></textarea>
+                <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Deskripsi</label>
+                <textarea id="edit-deskripsi" name="deskripsi" rows="3"
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 outline-none font-medium text-sm resize-none transition-all"></textarea>
             </div>
 
+            <!-- Ganti Foto -->
             <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Ganti Foto</label>
-                <input type="file" name="foto" accept="image/*" class="w-full px-5 py-2 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-sm file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700">
+                <label class="text-xs font-800 text-slate-600 uppercase tracking-wider block mb-2">Ganti Foto Laptop</label>
+                <input type="file" name="foto" accept="image/*" id="edit-foto-input"
+                    class="w-full px-4 py-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-800 file:bg-cyan-100 file:text-cyan-700 hover:border-cyan-400">
+                <p class="text-[10px] text-slate-400 mt-1">Kosongkan jika tidak ingin mengganti foto</p>
             </div>
 
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="toggleModal('modal-edit')" class="flex-1 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400">Batal</button>
-                <button type="submit" class="flex-[2] bg-blue-600 text-white px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/20 hover:bg-blue-700 transition-all">Update Data</button>
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="toggleModal('modal-edit')"
+                    class="flex-1 px-6 py-3 rounded-lg font-800 text-sm uppercase tracking-wider text-slate-600 hover:bg-slate-100 transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="flex-[2] bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-800 text-sm uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+                    Update Laptop
+                </button>
             </div>
         </form>
     </div>
 </div>
-
-<style>
-    .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-</style>
 
 <script>
+    // ── Toggle modal open/close ──────────────────────────────────────────────
     function toggleModal(modalID) {
         const modal = document.getElementById(modalID);
-        if (modal) {
-            modal.classList.toggle('hidden');
-            modal.classList.toggle('flex');
-        }
+        if (!modal) return;
+        const isHidden = modal.classList.contains('hidden');
+        modal.classList.toggle('hidden', !isHidden);
+        modal.classList.toggle('flex', isHidden);
     }
 
-    function openEditAlat(id, nama, kategori, stok, kondisi, deskripsi, fotoUrl, hargaSewa, hargaAsli) {
-        document.getElementById('form-edit').action = `/admin/alat/${id}`;
-        document.getElementById('edit-nama').value = nama;
-        document.getElementById('edit-kategori').value = kategori;
-        document.getElementById('edit-stok').value = stok;
-        document.getElementById('edit-kondisi').value = kondisi;
+    // ── Isi form edit lalu buka modal ────────────────────────────────────────
+    function openEditAlat(id, nama, kategori, stok, kondisi, deskripsi, fotoUrl, hargaSewa) {
+        // Set action URL dengan ID yang benar
+        document.getElementById('form-edit').action = '/admin/alat/' + id;
+
+        // Isi semua field
+        document.getElementById('edit-nama').value      = nama;
+        document.getElementById('edit-stok').value      = stok;
+        document.getElementById('edit-kondisi').value   = kondisi;
         document.getElementById('edit-deskripsi').value = deskripsi;
-        document.getElementById('edit-harga').value = hargaSewa;
-        document.getElementById('edit-harga-asli').value = hargaAsli;
-        
+        document.getElementById('edit-harga').value     = hargaSewa;
+
+        // Set kategori — pastikan option dengan value tersebut di-select
+        const selectKategori = document.getElementById('edit-kategori');
+        for (let i = 0; i < selectKategori.options.length; i++) {
+            if (selectKategori.options[i].value === kategori) {
+                selectKategori.selectedIndex = i;
+                break;
+            }
+        }
+
+        // Preview foto jika ada
         const preview = document.getElementById('edit-preview');
-        if(fotoUrl) {
+        if (fotoUrl && fotoUrl.trim() !== '') {
             preview.src = fotoUrl;
             preview.classList.remove('hidden');
         } else {
+            preview.src = '';
             preview.classList.add('hidden');
         }
+
+        // Reset input file agar tidak mengirim file lama
+        document.getElementById('edit-foto-input').value = '';
 
         toggleModal('modal-edit');
     }
 
+    // ── Preview foto baru saat dipilih di modal edit ─────────────────────────
+    document.getElementById('edit-foto-input').addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const preview = document.getElementById('edit-preview');
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // ── Tutup semua modal dengan tombol Escape ───────────────────────────────
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             document.querySelectorAll('[id^="modal-"]').forEach(m => {
@@ -288,5 +434,20 @@
             });
         }
     });
+
+    // ── SweetAlert notifikasi sukses ─────────────────────────────────────────
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end',
+            background: '#10b981',
+            color: '#ffffff'
+        });
+    @endif
 </script>
 @endsection

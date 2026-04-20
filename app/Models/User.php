@@ -23,7 +23,8 @@ class User extends Authenticatable
         'email',
         'no_hp',
         'password',
-        'role'
+        'role',
+        'is_blacklisted'
     ];
 
     /**

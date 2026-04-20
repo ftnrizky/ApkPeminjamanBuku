@@ -41,15 +41,22 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
+        // Redirect berdasarkan role user
         if ($user->role === 'admin') {
-            return redirect()->intended('/admin/dashboard');
+            return redirect('/admin/dashboard');
         } 
         
         if ($user->role === 'petugas') {
-            return redirect()->intended('/petugas/dashboard');
+            return redirect('/petugas/dashboard');
         }
 
-        // Default untuk peminjam
-        return redirect()->intended('/peminjam/dashboard');
+        // Default untuk peminjam (jika tidak ada role admin/petugas)
+        return redirect('/peminjam/dashboard');
+    }
+
+    // Override home untuk mengarahkan dengan benar
+    protected function redirectTo()
+    {
+        return '/peminjam/dashboard';
     }
 }
