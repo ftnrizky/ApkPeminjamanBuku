@@ -7,14 +7,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>E-Pustaka Admin | @yield('title')</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @stack('styles')
     <style>
         * {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
         }
@@ -178,7 +178,7 @@
     </style>
 </head>
 
-<body>
+<body class="font-sans text-slate-800 leading-relaxed antialiased bg-slate-50/50">
     <div class="relative flex h-screen overflow-hidden">
         <div id="sidebarOverlay" class="fixed inset-0 z-40 hidden bg-slate-900/40 backdrop-blur-sm lg:hidden"
             onclick="toggleSidebar(true)"></div>

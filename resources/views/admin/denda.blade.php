@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Denda')
+@section('title', 'Monitoring Denda')
 
 @section('content')
 
@@ -9,156 +9,134 @@
     <!-- HEADER & FILTERS -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800">💰 Manajemen Denda</h1>
-            <p class="text-slate-500 text-sm mt-1">Kelola dan pantau denda keterlambatan/kerusakan buku.</p>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900">📊 Monitoring <span class="text-indigo-600">Denda</span></h1>
+            <p class="mt-1 text-sm font-medium leading-relaxed text-slate-500">Pantau status denda dan kelola pelaporan resmi sistem perpustakaan.</p>
         </div>
         
         <div class="flex flex-wrap items-center gap-3 bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
             <form action="{{ route('admin.denda') }}" method="GET" class="flex flex-wrap items-center gap-3">
                 <div class="flex items-center gap-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mulai</label>
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Mulai</label>
                     <input type="date" name="tgl_mulai" value="{{ $tgl_mulai }}" 
-                        class="text-xs border-slate-200 rounded-lg focus:ring-cyan-500 focus:border-cyan-500">
+                        class="rounded-xl border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10">
                 </div>
                 <div class="flex items-center gap-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Selesai</label>
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Selesai</label>
                     <input type="date" name="tgl_selesai" value="{{ $tgl_selesai }}" 
-                        class="text-xs border-slate-200 rounded-lg focus:ring-cyan-500 focus:border-cyan-500">
+                        class="rounded-xl border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10">
                 </div>
-                <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2">
+                <button type="submit" class="flex h-[38px] items-center gap-2 rounded-xl bg-slate-900 px-4 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-slate-800">
                     <i class="fas fa-filter"></i> Filter
                 </button>
-                <a href="{{ route('admin.denda.export_pdf', request()->query()) }}" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2">
-                    <i class="fas fa-file-pdf"></i> Export PDF
+                <a href="{{ route('admin.denda.export_pdf', request()->query()) }}" class="flex h-[38px] items-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-indigo-100 transition hover:bg-indigo-700">
+                    <i class="fas fa-file-pdf"></i> Laporan
                 </a>
             </form>
             <div class="h-8 w-px bg-slate-200 mx-1"></div>
-            <div class="text-xs text-slate-500 font-medium">
-                <i class="fas fa-database mr-1"></i> Total Data: {{ $data->count() }}
+            <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <i class="fas fa-info-circle text-indigo-500"></i> Monitoring
             </div>
         </div>
     </div>
 
-    <!-- ALERT -->
-    @if(session('success'))
-    <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-        ✅ {{ session('success') }}
-    </div>
-    @endif
-    @if(session('error'))
-    <div class="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-        ❌ {{ session('error') }}
-    </div>
-    @endif
-
     <!-- SUMMARY CARD -->
     <div class="grid md:grid-cols-3 gap-5 mb-6">
-        <div class="bg-white p-5 rounded-2xl shadow hover:shadow-lg transition">
-            <p class="text-slate-500 text-sm">Total Nominal Denda</p>
-            <h2 class="text-2xl font-bold text-red-500 mt-2">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+            <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider">Total Nominal Terdata</p>
+            <h2 class="text-2xl font-black text-slate-900 mt-2">
                Rp{{ number_format($total_nominal, 0, ',', '.') }}
             </h2>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow hover:shadow-lg transition">
-            <p class="text-slate-500 text-sm">Kasus Belum Lunas</p>
-            <h2 class="text-2xl font-bold text-yellow-500 mt-2">
-                {{ $belum_lunas }}
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+            <p class="text-rose-500 text-[11px] font-bold uppercase tracking-wider">Belum Dilunasi</p>
+            <h2 class="text-2xl font-black text-rose-600 mt-2">
+                {{ $belum_lunas }} <span class="text-xs font-medium text-slate-400 tracking-normal">Kasus</span>
             </h2>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow hover:shadow-lg transition">
-            <p class="text-slate-500 text-sm">Kasus Sudah Lunas</p>
-            <h2 class="text-2xl font-bold text-green-500 mt-2">
-                {{ $sudah_lunas }}
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+            <p class="text-emerald-500 text-[11px] font-bold uppercase tracking-wider">Sudah Dilunasi</p>
+            <h2 class="text-2xl font-black text-emerald-600 mt-2">
+                {{ $sudah_lunas }} <span class="text-xs font-medium text-slate-400 tracking-normal">Kasus</span>
             </h2>
         </div>
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-2xl shadow overflow-hidden">
+    <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
-                <thead class="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white">
-                    <tr>
-                        <th class="p-4 text-center">No</th>
-                        <th class="p-3 text-left">Nama Peminjam</th>
-                        <th class="p-3 text-left">buku</th>
-                        <th class="p-3 text-left">Denda</th>
-                        <th class="p-3 text-left">Metode</th>
-                        <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-center">Bukti</th>
-                        <th class="p-3 text-center">Aksi</th>
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-[10px] font-bold tracking-widest">
+                        <th class="p-4 text-center w-16">No</th>
+                        <th class="p-4 text-left">Peminjam</th>
+                        <th class="p-4 text-left">Detail buku</th>
+                        <th class="p-4 text-left">Nominal Denda</th>
+                        <th class="p-4 text-left">Status Terakhir</th>
+                        <th class="p-4 text-center">Bukti</th>
+                        <th class="p-4 text-center">Aksi Monitoring</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody class="divide-y divide-slate-100">
                     @forelse($data as $item)
-                    <tr class="hover:bg-slate-50 transition" id="row-{{ $item->id }}">
-                        <td class="p-4 text-center font-semibold text-slate-500">
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="p-4 text-center font-bold text-slate-400">
                             {{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}
                         </td>
-                        <td class="p-3 font-medium text-slate-700">{{ $item->user->name ?? '-' }}</td>
-                        <td class="p-3 text-slate-600">{{ $item->alat->nama_alat ?? '-' }}</td>
-                        <td class="p-3 font-bold text-red-500">Rp{{ number_format($item->total_denda, 0, ',', '.') }}</td>
-                        <td class="p-3 text-slate-500 text-xs">{{ strtoupper($item->metode_bayar ?? '-') }}</td>
-                        <td class="p-3">
+                        <td class="p-4">
+                            <p class="font-bold text-slate-900">{{ $item->user->name ?? '-' }}</p>
+                            <p class="text-[10px] text-slate-400 italic">ID: #{{ $item->user_id }}</p>
+                        </td>
+                        <td class="p-4 text-slate-600">
+                            <p class="font-medium">{{ $item->alat->nama_alat ?? '-' }}</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-tighter">{{ $item->metode_bayar ?? 'Belum Pilih Metode' }}</p>
+                        </td>
+                        <td class="p-4 font-black text-slate-900">
+                            Rp{{ number_format($item->total_denda, 0, ',', '.') }}
+                        </td>
+                        <td class="p-4">
                             @if($item->is_denda_lunas)
-                                <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700 font-semibold">Lunas</span>
-                            @elseif($item->status_pembayaran == 'pending')
-                                <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 font-semibold">Pending</span>
-                            @elseif($item->status_pembayaran == 'ditolak')
-                                <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700 font-semibold">Ditolak</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] rounded-full bg-emerald-100 text-emerald-700 font-bold uppercase">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Lunas
+                                </span>
                             @else
-                                <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-semibold">Belum Bayar</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] rounded-full bg-rose-100 text-rose-700 font-bold uppercase">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Belum Lunas
+                                </span>
                             @endif
                         </td>
-                        <td class="p-3 text-center">
+                        <td class="p-4 text-center">
                             @if($item->bukti_bayar)
                                 <button onclick="showImage('{{ asset('storage/'.$item->bukti_bayar) }}')"
-                                    class="text-blue-500 hover:underline text-xs font-semibold">📷 Lihat</button>
+                                    class="text-cyan-600 hover:text-cyan-700 font-bold text-xs flex items-center justify-center gap-1 mx-auto">
+                                    <i class="fas fa-image"></i> Cek Bukti
+                                </button>
                             @else
-                                <span class="text-slate-400 text-xs">-</span>
+                                <span class="text-slate-300 text-xs">-</span>
                             @endif
                         </td>
-                        <td class="p-3 text-center">
-                            <div class="flex items-center justify-center gap-1 flex-wrap">
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                {{-- Hanya Tombol Notif Reminder & Detail --}}
+                                <button onclick="kirimNotif({{ $item->id }}, this)"
+                                    class="group relative bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white p-2 rounded-xl transition-all duration-300 border border-amber-100 shadow-sm"
+                                    title="Kirim Pengingat">
+                                    <i class="fas fa-bell"></i>
+                                </button>
 
-                                {{-- Lunas via Cash (admin tandai manual) --}}
-                                @if(!$item->is_denda_lunas)
-                                    <button onclick="bayarCash({{ $item->id }}, this)"
-                                        class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition font-semibold">
-                                        💵 Cash
-                                    </button>
-                                @endif
-
-                                {{-- Verifikasi QRIS: muncul hanya jika pending DAN ada bukti --}}
-                                @if($item->status_pembayaran == 'pending' && $item->bukti_bayar)
-                                    <button onclick="verifikasi({{ $item->id }}, 'terima', this)"
-                                        class="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition">
-                                        ✔ Terima
-                                    </button>
-                                    <button onclick="bukaModalTolak({{ $item->id }}, this)"
-                                        class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition">
-                                        ✖ Tolak
-                                    </button>
-                                @endif
-
-                                {{-- Kirim Notif Reminder (hanya jika belum lunas) --}}
-                                @if(!$item->is_denda_lunas)
-                                    <button onclick="kirimNotif({{ $item->id }}, this)"
-                                        class="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600 transition">
-                                        🔔 Notif
-                                    </button>
-                                @endif
-
-                                @if($item->is_denda_lunas)
-                                    <span class="text-green-500 text-xs font-semibold">✅ Lunas</span>
-                                @endif
-
+                                <button onclick="showImage('{{ asset('storage/'.$item->bukti_bayar) }}')"
+                                    class="bg-slate-50 text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition border border-slate-200 shadow-sm"
+                                    title="Detail Info">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-10 text-slate-400">Tidak ada data denda ditemukan</td>
+                        <td colspan="7" class="text-center py-20">
+                            <i class="fas fa-file-invoice-dollar text-slate-200 text-5xl mb-4 block"></i>
+                            <p class="text-slate-400 font-medium">Tidak ada data denda yang terdeteksi.</p>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -166,197 +144,87 @@
         </div>
         
         <!-- PAGINATION -->
-        <div class="p-4 border-t border-slate-100 bg-slate-50">
+        <div class="p-6 border-t border-slate-100 bg-slate-50">
             {{ $data->links() }}
         </div>
     </div>
 </div>
 
 <!-- MODAL IMAGE -->
-<div id="imageModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50"
+<div id="imageModal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center z-[100] backdrop-blur-sm p-4"
     onclick="closeModal()">
-    <div class="bg-white p-4 rounded-xl shadow-lg relative" onclick="event.stopPropagation()">
-        <button onclick="closeModal()" class="absolute top-2 right-2 text-red-500 text-lg font-bold">✖</button>
-        <img id="previewImage" class="max-w-md max-h-[80vh] object-contain rounded">
-    </div>
-</div>
-
-<!-- MODAL TOLAK (dengan input catatan) -->
-<div id="modalTolak" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
-        <h3 class="font-bold text-gray-800 text-lg">✖ Tolak Pembayaran</h3>
-        <p class="text-sm text-gray-500">Masukkan alasan penolakan (opsional, akan dikirim ke peminjam):</p>
-        <textarea id="catatan-tolak" rows="3"
-            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400"
-            placeholder="Contoh: Bukti transfer tidak jelas / nominal tidak sesuai"></textarea>
-        <div class="flex gap-3">
-            <button onclick="tutupModalTolak()"
-                class="flex-1 border border-gray-300 rounded-xl py-2 text-sm text-gray-600 hover:bg-gray-50 transition">
-                Batal
+    <div class="bg-white p-2 rounded-3xl shadow-2xl relative max-w-lg w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center p-4 border-b border-slate-100">
+            <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Detail Bukti Pembayaran</h3>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-rose-500 transition-colors">
+                <i class="fas fa-times-circle text-xl"></i>
             </button>
-            <button id="btn-konfirmasi-tolak"
-                class="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl py-2 text-sm font-semibold transition">
-                Konfirmasi Tolak
-            </button>
+        </div>
+        <div class="p-4">
+            <img id="previewImage" class="w-full h-auto object-contain rounded-2xl shadow-inner bg-slate-50" style="max-height: 70vh;">
         </div>
     </div>
 </div>
 
 <!-- TOAST -->
 <div id="toast"
-    class="fixed bottom-6 right-6 z-50 hidden px-5 py-3 rounded-xl shadow-lg text-white text-sm font-semibold">
+    class="fixed bottom-10 right-10 z-[100] translate-y-20 opacity-0 transition-all duration-500 px-6 py-4 rounded-2xl shadow-2xl text-white text-sm font-bold flex items-center gap-3">
 </div>
 
 <script>
 const CSRF = '{{ csrf_token() }}';
 
-// ─── Modal Image ───────────────────────────────────
+// ─── Modal Utils ───────────────────────────────────
 function showImage(src) {
+    if(!src || src.includes('null')) {
+        showToast('Bukti pembayaran belum diunggah oleh peminjam.', 'error');
+        return;
+    }
+    const modal = document.getElementById('imageModal');
+    const content = document.getElementById('modalContent');
     document.getElementById('previewImage').src = src;
-    const m = document.getElementById('imageModal');
-    m.classList.remove('hidden');
-    m.classList.add('flex');
-}
-function closeModal() {
-    const m = document.getElementById('imageModal');
-    m.classList.add('hidden');
-    m.classList.remove('flex');
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
 }
 
-// ─── Toast ─────────────────────────────────────────
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    const content = document.getElementById('modalContent');
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 300);
+}
+
+// ─── Toast System ───────────────────────────────────
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.className = `fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-semibold ${
-        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    toast.innerHTML = (type === 'success' ? '<i class="fas fa-check-circle text-xl"></i>' : '<i class="fas fa-exclamation-circle text-xl"></i>') + `<span>${message}</span>`;
+    
+    toast.className = `fixed bottom-10 right-10 z-[100] px-6 py-4 rounded-2xl shadow-2xl text-white text-sm font-bold flex items-center gap-3 transition-all duration-500 ${
+        type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'
     }`;
-    toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 3500);
+    
+    toast.classList.remove('translate-y-20', 'opacity-0');
+    setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+    }, 4000);
 }
 
-// ─── Bayar Cash (admin tandai manual) ──────────────
-async function bayarCash(id, btn) {
-    if (!confirm('Tandai denda ini sudah dibayar cash?')) return;
-    btn.disabled = true;
-    btn.textContent = '⏳';
-
-    try {
-        const res = await fetch(`/admin/bayar-denda/${id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': CSRF,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ metode_bayar: 'cash' }),
-        });
-        const json = await res.json();
-        if (json.success) {
-            showToast('✅ Denda lunas (cash)');
-            refreshData();
-        } else {
-            showToast(json.message || 'Gagal memproses', 'error');
-            btn.disabled = false;
-            btn.textContent = '💵 Cash';
-        }
-    } catch (e) {
-        showToast('Error koneksi', 'error');
-        btn.disabled = false;
-        btn.textContent = '💵 Cash';
-    }
-}
-
-// ─── Modal Tolak ───────────────────────────────────
-let _tolakId   = null;
-let _tolakBtn  = null;
-
-function bukaModalTolak(id, btn) {
-    _tolakId  = id;
-    _tolakBtn = btn;
-    document.getElementById('catatan-tolak').value = '';
-    const m = document.getElementById('modalTolak');
-    m.classList.remove('hidden');
-    m.classList.add('flex');
-}
-function tutupModalTolak() {
-    const m = document.getElementById('modalTolak');
-    m.classList.add('hidden');
-    m.classList.remove('flex');
-    _tolakId = null;
-    _tolakBtn = null;
-}
-
-document.getElementById('btn-konfirmasi-tolak').addEventListener('click', async function () {
-    if (!_tolakId) return;
-    const catatan = document.getElementById('catatan-tolak').value.trim();
-    this.disabled = true;
-    this.textContent = '⏳';
-
-    try {
-        const res = await fetch(`/admin/verifikasi-denda/${_tolakId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': CSRF,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ aksi: 'tolak', catatan_penolakan: catatan }),
-        });
-        const json = await res.json();
-        if (json.success) {
-            showToast('❌ Pembayaran ditolak');
-            tutupModalTolak();
-            refreshData();
-        } else {
-            showToast('Gagal memproses', 'error');
-        }
-    } catch (e) {
-        showToast('Error koneksi', 'error');
-    }
-
-    this.disabled = false;
-    this.textContent = 'Konfirmasi Tolak';
-});
-
-// ─── Verifikasi Terima ─────────────────────────────
-async function verifikasi(id, aksi, btn) {
-    if (aksi === 'tolak') { bukaModalTolak(id, btn); return; }
-    if (!confirm('Terima pembayaran ini?')) return;
-
-    btn.disabled = true;
-    btn.textContent = '⏳';
-
-    try {
-        const res = await fetch(`/admin/verifikasi-denda/${id}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': CSRF,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ aksi }),
-        });
-        const json = await res.json();
-        if (json.success) {
-            showToast('✅ Pembayaran diterima');
-            refreshData();
-        } else {
-            showToast('Gagal memproses', 'error');
-            btn.disabled = false;
-            btn.textContent = '✔ Terima';
-        }
-    } catch (e) {
-        showToast('Error koneksi', 'error');
-        btn.disabled = false;
-        btn.textContent = '✔ Terima';
-    }
-}
-
-// ─── Kirim Notifikasi Reminder ─────────────────────
+// ─── Monitoring Action: Kirim Peringatan ────────────
 async function kirimNotif(id, btn) {
-    if (!confirm('Kirim notifikasi reminder ke peminjam?')) return;
+    if (!confirm('Kirim pengingat denda kepada peminjam?')) return;
+    
+    const originalContent = btn.innerHTML;
     btn.disabled = true;
-    btn.textContent = '⏳';
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-amber-600"></i>';
 
     try {
         const res = await fetch(`/admin/denda/${id}/kirim-notif`, {
@@ -369,23 +237,22 @@ async function kirimNotif(id, btn) {
         });
         const json = await res.json();
         if (json.success) {
-            showToast('🔔 Notifikasi berhasil dikirim');
+            showToast('✅ Peringatan denda berhasil dikirim');
         } else {
-            showToast(json.message || 'Gagal kirim notifikasi', 'error');
+            showToast(json.message || 'Gagal mengirim peringatan', 'error');
         }
     } catch (e) {
-        showToast('Error koneksi', 'error');
+        showToast('Kesalahan jaringan, coba lagi', 'error');
     }
 
     btn.disabled = false;
-    btn.textContent = '🔔 Notif';
+    btn.innerHTML = originalContent;
 }
 
-// ─── Refresh / Polling ─────────────────────────────
-// Fitur refresh otomatis telah dihapus untuk menampilkan data secara statis.
-function refreshData() {
-    window.location.reload();
-}
+// Global closeModal on Esc
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+});
 </script>
 
 @endsection

@@ -7,18 +7,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') | E-Pustaka</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
         }
 
         body {
             background: #f8fafc;
             color: #1e293b;
+            line-height: 1.625;
         }
 
         .app-navbar {
@@ -183,7 +184,7 @@
     </style>
 </head>
 
-<body>
+<body class="font-sans text-slate-800 leading-relaxed antialiased">
     @php
         $jumlahDendaBelumLunas = \App\Models\Denda::whereHas(
             'peminjaman',

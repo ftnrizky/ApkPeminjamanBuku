@@ -101,17 +101,11 @@ Route::middleware(['auth', 'blacklist', 'role:admin'])->group(function () {
     Route::post('/admin/overdue-list/reminder/{id}', [OverdueListController::class, 'sendReminder'])->name('admin.overdue_reminder');
 
     // =========================================================
-    // 💰 DENDA ADMIN
+    // 💰 MONITORING DENDA (ADMIN)
     // =========================================================
     Route::get('/admin/denda',                   [DendaController::class, 'index'])           ->name('admin.denda');
-    Route::get('/admin/denda/json',              [DendaController::class, 'getDataJson'])     ->name('admin.denda.json');
     Route::get('/admin/denda/export-pdf',        [DendaController::class, 'exportPdf'])       ->name('admin.denda.export_pdf');
-    Route::post('/admin/bayar-denda/{id}',       [DendaController::class, 'bayarDenda'])      ->name('admin.bayar.denda');
-    Route::post('/admin/upload-bukti-denda/{id}',[DendaController::class, 'uploadBukti'])     ->name('admin.denda.upload_bukti');
-    // PERBAIKAN: verifikasi pakai POST agar kompatibel dengan fetch JS (sebelumnya PATCH)
-    Route::post('/admin/verifikasi-denda/{id}',  [DendaController::class, 'verifikasiDenda']) ->name('admin.verifikasi.denda');
-    // Kirim notif reminder dari admin (BARU)
-    Route::post('/admin/denda/{id}/kirim-notif', [DendaController::class, 'kirimNotifDenda']) ->name('admin.denda.kirim_notif');
+    Route::post('/admin/denda/{id}/kirim-notif', [DendaController::class, 'kirimNotif'])      ->name('admin.denda.kirim_notif');
 });
 
 Route::prefix('admin')->middleware(['auth', 'blacklist', 'role:admin'])->group(function () {

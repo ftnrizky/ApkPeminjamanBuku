@@ -6,20 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Peminjaman;
 use App\Models\Notifikasi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class DendaController extends Controller
 {
     /**
-     * Halaman manajemen denda (admin)
-     * GET /admin/denda
+     * Halaman monitoring denda (admin - READ ONLY)
+     * Menampilkan semua data denda yang disinkronkan dari tindakan Petugas.
      */
     public function index(Request $request)
     {
         $tgl_mulai = $request->query('tgl_mulai');
         $tgl_selesai = $request->query('tgl_selesai');
 
-        // Mengambil data dari Peminjaman agar SINKRON dengan dashboard
         $query = Peminjaman::with(['user', 'alat'])
             ->where('total_denda', '>', 0);
 
@@ -27,10 +25,9 @@ class DendaController extends Controller
             $query->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59']);
         }
 
-        // Gunakan paginate agar bisa menampilkan SEMUA data tanpa lemot
         $data = $query->latest()->paginate(15)->withQueryString();
 
-        // Hitung ringkasan denda (tanpa paginate untuk summary card)
+        // Ringkasan monitoring
         $summaryQuery = Peminjaman::where('total_denda', '>', 0);
         if ($tgl_mulai && $tgl_selesai) {
             $summaryQuery->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59']);
@@ -44,7 +41,7 @@ class DendaController extends Controller
     }
 
     /**
-     * Export denda ke PDF
+     * Export laporan denda ke PDF
      */
     public function exportPdf(Request $request)
     {
@@ -66,104 +63,22 @@ class DendaController extends Controller
     }
 
     /**
-     * Admin tandai lunas via cash
-     * POST /admin/bayar-denda/{id}
-     */
-    public function bayarDenda(Request $request, $id)
-    {
-        $pinjam = Peminjaman::findOrFail($id);
-
-        if ($pinjam->is_denda_lunas) {
-            return response()->json(['success' => false, 'message' => 'Denda sudah lunas.'], 422);
-        }
-
-        $pinjam->update([
-            'metode_bayar'      => 'cash',
-            'status_pembayaran' => 'diterima',
-            'is_denda_lunas'    => true,
-            'tanggal_bayar'     => now(),
-        ]);
-
-        Notifikasi::create([
-            'user_id'    => $pinjam->user_id,
-            'title'      => '✅ Denda Lunas',
-            'message'    => 'Pembayaran denda cash Rp ' . number_format($pinjam->total_denda, 0, ',', '.') . ' telah dikonfirmasi oleh admin.',
-            'type'       => 'success',
-            'icon'       => 'fas fa-check-circle',
-            'action_url' => route('peminjam.riwayat'),
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Denda lunas (cash).']);
-    }
-
-    /**
-     * Verifikasi pembayaran QRIS (terima / tolak)
-     * POST /admin/verifikasi-denda/{id}
-     */
-    public function verifikasiDenda(Request $request, $id)
-    {
-        $request->validate([
-            'aksi'              => 'required|in:terima,tolak',
-            'catatan_penolakan' => 'nullable|string|max:255',
-        ]);
-
-        $pinjam = Peminjaman::findOrFail($id);
-
-        if ($pinjam->is_denda_lunas) {
-            return response()->json(['success' => false, 'message' => 'Denda sudah lunas.'], 422);
-        }
-
-        if ($request->aksi === 'terima') {
-            $pinjam->update([
-                'status_pembayaran' => 'diterima',
-                'is_denda_lunas'    => true,
-                'tanggal_bayar'     => now(),
-            ]);
-
-            Notifikasi::create([
-                'user_id'    => $pinjam->user_id,
-                'title'      => '✅ Pembayaran Diterima',
-                'message'    => 'Pembayaran denda Rp ' . number_format($pinjam->total_denda, 0, ',', '.') . ' telah diverifikasi dan diterima.',
-                'type'       => 'success',
-                'icon'       => 'fas fa-check-double',
-                'action_url' => route('peminjam.riwayat'),
-            ]);
-        } else {
-            $pinjam->update([
-                'status_pembayaran' => 'ditolak'
-            ]);
-
-            Notifikasi::create([
-                'user_id'    => $pinjam->user_id,
-                'title'      => '❌ Pembayaran Ditolak',
-                'message'    => 'Bukti pembayaran denda ditolak. Alasan: ' . ($request->catatan_penolakan ?? 'Tidak disebutkan'),
-                'type'       => 'error',
-                'icon'       => 'fas fa-times-circle',
-                'action_url' => route('peminjam.riwayat'),
-            ]);
-        }
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Kirim notifikasi reminder denda
-     * POST /admin/denda/{id}/kirim-notif
+     * Fitur Admin: Memberikan notifikasi peringatan kepada peminjam
      */
     public function kirimNotif(Request $request, $id)
     {
         $pinjam = Peminjaman::with('user')->findOrFail($id);
-        $nama = $pinjam->user->name ?? 'User';
+        $nama = $pinjam->user->name ?? 'Peminjam';
 
         Notifikasi::create([
             'user_id'    => $pinjam->user_id,
-            'title'      => '🔔 Reminder Denda',
-            'message'    => 'Halo ' . $nama . ', jangan lupa untuk melunasi denda Anda sebesar Rp ' . number_format($pinjam->total_denda, 0, ',', '.'),
+            'title'      => '⚠️ Peringatan Denda',
+            'message'    => 'Halo ' . $nama . ', Admin mengingatkan Anda untuk segera melunasi denda sebesar Rp ' . number_format($pinjam->total_denda, 0, ',', '.') . ' di meja petugas.',
             'type'       => 'warning',
-            'icon'       => 'fas fa-bullhorn',
+            'icon'       => 'fas fa-exclamation-triangle',
             'action_url' => route('peminjam.riwayat'),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Notifikasi terkirim ke ' . $nama]);
+        return response()->json(['success' => true, 'message' => 'Peringatan denda berhasil dikirim ke ' . $nama]);
     }
 }
