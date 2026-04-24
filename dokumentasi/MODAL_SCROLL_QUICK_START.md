@@ -74,7 +74,7 @@ Route::get('/modal-examples', function () {
 ### Sebelum (Old Code)
 
 ```html
-<!-- Modal Tambah Laptop -->
+<!-- Modal Tambah buku -->
 <div id="modal-tambah" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="fixed inset-0 bg-slate-900/50" onclick="toggleModal('modal-tambah')"></div>
     
@@ -95,14 +95,14 @@ function toggleModal(modalId) {
 ### Sesudah (New Code)
 
 ```html
-<!-- Modal Tambah Laptop -->
+<!-- Modal Tambah buku -->
 <div id="modal-tambah" class="modal">
     <div class="modal-backdrop"></div>
     
     <div class="modal-content">
         <!-- Header -->
         <div class="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
-            <h2 class="text-xl font-bold">Tambah Laptop</h2>
+            <h2 class="text-xl font-bold">Tambah buku</h2>
             <button onclick="closeModal('modal-tambah')" class="text-gray-500 hover:text-gray-700">
                 <i class="fas fa-times"></i>
             </button>

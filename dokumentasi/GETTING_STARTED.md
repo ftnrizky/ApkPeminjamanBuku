@@ -1,4 +1,4 @@
-🎉 **WELCOME TO E-LAPTOP MANAGEMENT SYSTEM v1.0** 🎉
+🎉 **WELCOME TO E-PUSTAKA MANAGEMENT SYSTEM v1.0** 🎉
 
 **Status:** ✅ Production Ready
 **Version:** 1.0 Release
@@ -114,7 +114,7 @@ Track all user activities (login, peminjaman, pengembalian, etc.)
 - Export to PDF
 
 ### ✨ Feature 2: Overdue Management
-Track unreturned/unpaid laptops
+Track unreturned/unpaid bukus
 
 **Access:**
 - Admin: `/admin/overdue-list`

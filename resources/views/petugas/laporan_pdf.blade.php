@@ -2,264 +2,201 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Peminjaman Laptop</title>
+    <title>Laporan Peminjaman - E-PUSTAKA</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 9px; }
-        body { font-family: Arial, sans-serif; font-size: 8px; line-height: 1.2; color: #1a1a1a; background: #fff; }
-        .container { width: 210mm; height: 297mm; padding: 8mm 8mm; margin: 0 auto; display: flex; flex-direction: column; }
-        @media print {
-            body { margin: 0; padding: 0; }
-            .container { max-width: 100%; height: auto; padding: 8mm; margin: 0; }
+        /* Konfigurasi Halaman */
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
         }
-        .header { text-align: center; margin-bottom: 6px; border-bottom: 1.5px solid #06b6d4; padding-bottom: 5px; flex-shrink: 0; }
-        .header h1 { font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 1px; }
-        .header p { font-size: 7px; color: #475569; margin: 0px; line-height: 1.1; }
-        .company-name { font-size: 9px; font-weight: 700; color: #06b6d4; }
-        .content { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 7px; }
-        th { background: #06b6d4; color: white; text-transform: uppercase; padding: 2px 2px; text-align: left; font-size: 6px; font-weight: 700; border: 0.5px solid #0891b2; line-height: 1.1; }
-        td { border: 0.5px solid #e2e8f0; padding: 2px 2px; font-size: 7px; }
-        tbody tr:nth-child(even) { background: #f9fafb; }
+
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 10pt;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Laporan */
+        .header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header-top {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .header-title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .header-subtitle {
+            font-size: 10pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .meta-info {
+            width: 100%;
+            font-size: 9pt;
+            color: #475569;
+            margin-top: 10px;
+        }
+
+        /* Tabel Data */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top: 15px;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: bold;
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 8.5pt;
+            border: 1px solid #e2e8f0;
+            padding: 10px 8px;
+        }
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Utility */
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .status-badge { display: inline-block; padding: 1px 3px; border-radius: 2px; font-size: 6px; font-weight: 700; text-transform: uppercase; }
-        .status-pending { background: #fef3c7; color: #92400e; }
-        .status-disetujui { background: #cffafe; color: #0c4a6e; }
-        .status-selesai { background: #ccfbf1; color: #134e4a; }
-        .status-ditolak { background: #fee2e2; color: #7f1d1d; }
-        .summary-section { margin-top: 4px; padding: 6px; background: #f0f9ff; border-left: 3px solid #06b6d4; border-radius: 2px; flex-shrink: 0; }
-        .summary-title { font-size: 7px; font-weight: 700; color: #0f172a; margin-bottom: 3px; text-transform: uppercase; }
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-        .summary-item { text-align: center; padding: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 2px; }
-        .summary-label { font-size: 6px; color: #475569; text-transform: uppercase; font-weight: 700; margin-bottom: 1px; }
-        .summary-value { font-size: 10px; font-weight: 800; color: #06b6d4; }
-        .footer { margin-top: 4px; padding-top: 3px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 6px; color: #64748b; flex-shrink: 0; }
-        .no-data { text-align: center; padding: 15px 0; color: #64748b; font-size: 7px; }
+        .font-bold { font-weight: bold; }
+        .text-red { color: #e11d48; }
+        
+        /* Summary Box */
+        .summary-box {
+            float: right;
+            width: 250px;
+            margin-top: 20px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            padding: 10px;
+        }
+        .summary-row {
+            width: 100%;
+            font-size: 9pt;
+            margin-bottom: 4px;
+        }
+        .summary-total {
+            border-top: 1px solid #e2e8f0;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 5px;
+        }
+        .page-number:after { content: "Halaman " counter(page); }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="company-name">E-Laptop Management System</div>
-            <h1>Laporan Peminjaman Laptop</h1>
-            <p>Periode: {{ $tgl_mulai ?? 'N/A' }} - {{ $tgl_selesai ?? 'N/A' }} | Dicetak: {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d/m/Y H:i') }} WIB</p>
-        </div>
+    <div class="header">
+        <table class="header-top">
+            <tr>
+                <td style="border: none; padding: 0;">
+                    <h1 class="header-title">Laporan Peminjaman</h1>
+                    <div class="header-subtitle">E-PUSTAKA Management System</div>
+                </td>
+                <td style="border: none; padding: 0; text-align: right; vertical-align: middle;">
+                    <div style="font-weight: bold; font-size: 9pt; color: #0f172a;">ID: PJM-{{ date('YmdH') }}</div>
+                </td>
+            </tr>
+        </table>
+        
+        <table class="meta-info">
+            <tr>
+                <td style="border: none; padding: 0;">
+                    <strong>Periode:</strong> {{ $tgl_mulai ?? 'Semua' }} s/d {{ $tgl_selesai ?? 'Semua' }}
+                </td>
+                <td style="border: none; padding: 0; text-align: right;">
+                    <strong>Dicetak:</strong> {{ date('d/m/Y H:i') }} WIB
+                </td>
+            </tr>
+        </table>
+    </div>
 
-        <div class="content">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 3%;">No</th>
-                        <th style="width: 7%;">Kode</th>
-                        <th style="width: 14%;">Peminjam</th>
-                        <th style="width: 15%;">Laptop</th>
-                        <th style="width: 5%;" class="text-center">Qty</th>
-                        <th style="width: 8%;" class="text-center">Pinjam</th>
-                        <th style="width: 8%;" class="text-center">Kembali</th>
-                        <th style="width: 10%;" class="text-center">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($laporans as $index => $laporan)
-                        <tr>
-                            <td class="text-center">{{ $index + 1 }}</td>
-                            <td>PJM-{{ str_pad($laporan->id, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td>{{ Str::limit($laporan->user->name, 12) }}</td>
-                            <td>{{ Str::limit($laporan->alat->nama_alat, 14) }}</td>
-                            <td class="text-center">{{ $laporan->jumlah }}</td>
-                            <td class="text-center">{{ $laporan->created_at->format('d/m/y') }}</td>
-                            <td class="text-center">{{ \Carbon\Carbon::parse($laporan->tgl_kembali)->format('d/m/y') }}</td>
-                            <td class="text-center">
-                                <span class="status-badge status-{{ $laporan->status }}">
-                                    {{ Str::limit(ucfirst($laporan->status), 8) }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="no-data">Tidak ada data peminjaman</td>
-                        </tr>
-                    @endforelse
-                </tbody>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px;" class="text-center">No</th>
+                <th style="width: 100px;">ID Transaksi</th>
+                <th>Peminjam</th>
+                <th>Item buku</th>
+                <th style="width: 40px;" class="text-center">Qty</th>
+                <th style="width: 90px;" class="text-center">Tgl Pinjam</th>
+                <th style="width: 80px;" class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($laporans as $index => $laporan)
+            <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td class="text-center">#PJM-{{ str_pad($laporan->id, 5, '0', STR_PAD_LEFT) }}</td>
+                <td class="font-bold">{{ $laporan->user->name ?? '-' }}</td>
+                <td>{{ $laporan->alat->nama_alat ?? '-' }}</td>
+                <td class="text-center">{{ $laporan->jumlah }}</td>
+                <td class="text-center">{{ $laporan->created_at->format('d/m/Y') }}</td>
+                <td class="text-center">{{ strtoupper($laporan->status) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <div style="width: 100%; clear: both;">
+        <div class="summary-box">
+            <table style="width: 100%; border: none; margin: 0;">
+                <tr>
+                    <td style="border: none; padding: 2px;">Total Transaksi:</td>
+                    <td style="border: none; padding: 2px; text-align: right;">{{ $laporans->count() }}</td>
+                </tr>
+                <tr>
+                    <td style="border: none; padding: 2px;">Total Unit:</td>
+                    <td style="border: none; padding: 2px; text-align: right;">{{ $laporans->sum('jumlah') }}</td>
+                </tr>
+                <tr class="summary-total">
+                    <td style="border: none; padding: 8px 2px 2px 2px; border-top: 1px solid #e2e8f0;">TOTAL DENDA:</td>
+                    <td style="border: none; padding: 8px 2px 2px 2px; border-top: 1px solid #e2e8f0; text-align: right;" class="text-red">Rp{{ number_format($totalDenda ?? 0, 0, ',', '.') }}</td>
+                </tr>
             </table>
         </div>
-
-        <div class="summary-section">
-            <div class="summary-title">📊 Ringkasan Data</div>
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="summary-label">Total</div>
-                    <div class="summary-value">{{ $laporans->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Pending</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'pending')->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Disetujui</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'disetujui')->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Selesai</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'selesai')->count() }}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div>E-Laptop System | Laporan Peminjaman</div>
-            <div>Hal. 1/1</div>
-        </div>
     </div>
-</body>
-                    <div class="summary-label">Disetujui</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'disetujui')->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Selesai</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'selesai')->count() }}</div>
-                </div>
-            </div>
-        </div>
 
-        <div class="footer">
-            <div>E-Laptop System | Petugas: {{ Auth::user()->name ?? 'Administrator' }}</div>
-            <div>Hal. 1/1</div>
-        </div>
-    </div>
-</body>
-</html>
-        
-        .footer-left {
-            font-size: 10px;
-            color: #666;
-        }
-        
-        .footer-right {
-            text-align: right;
-            font-size: 10px;
-            color: #666;
-        }
-        
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-            font-style: italic;
-        }
-        
-        .generated-date {
-            color: #999;
-            font-size: 10px;
-        }
-        
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                margin: 0;
-                padding: 15mm;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="company-name">E-LAPTOP SYSTEM</div>
-            <h1>REKAPITULASI PEMINJAMAN LAPTOP</h1>
-            
-            @if(isset($tgl_mulai) && isset($tgl_selesai) && $tgl_mulai && $tgl_selesai)
-                <div class="period-info">
-                    <strong>Periode:</strong> {{ \Carbon\Carbon::parse($tgl_mulai)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($tgl_selesai)->translatedFormat('d F Y') }}
-                </div>
-            @endif
-            
-            <p class="generated-date">Tanggal Cetak: {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y - H:i') }} WIB</p>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 12%;">Tanggal</th>
-                    <th style="width: 20%;">Peminjam</th>
-                    <th style="width: 25%;">Laptop</th>
-                    <th style="width: 10%;" class="text-center">Qty</th>
-                    <th style="width: 15%;" class="text-center">Status</th>
-                    <th style="width: 13%;" class="text-center">Kategori</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($laporans as $index => $data)
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $data->created_at->translatedFormat('d M Y') }}</td>
-                    <td>{{ $data->user->name ?? '-' }}</td>
-                    <td>{{ $data->alat->nama_alat ?? '-' }}</td>
-                    <td class="text-center">{{ $data->jumlah }} Unit</td>
-                    <td class="text-center">
-                        <span class="status-badge status-{{ strtolower($data->status) }}">
-                            {{ ucfirst($data->status) }}
-                        </span>
-                    </td>
-                    <td class="text-center">{{ $data->alat->kategori ?? '-' }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="no-data">📋 Tidak ada data peminjaman untuk periode ini</td>
-                </tr>
-                @endforelse
-            </tbody>
+    <div class="footer">
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; text-align: left; width: 33%;">E-PUSTAKA System</td>
+                <td style="border: none; text-align: center; width: 33%;" class="page-number"></td>
+                <td style="border: none; text-align: right; width: 33%;">Oleh: {{ Auth::user()->name ?? 'Admin' }}</td>
+            </tr>
         </table>
-
-        @if($laporans->count() > 0)
-        <div class="summary-section">
-            <div class="summary-title">📊 Ringkasan Data</div>
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="summary-label">Total Transaksi</div>
-                    <div class="summary-value">{{ $laporans->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Total Unit</div>
-                    <div class="summary-value">{{ $laporans->sum('jumlah') }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Disetujui</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'disetujui')->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Selesai</div>
-                    <div class="summary-value">{{ $laporans->where('status', 'selesai')->count() }}</div>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        <div class="footer">
-            <div class="footer-left">
-                <strong>E-Laptop Management System</strong><br>
-                Sistem Manajemen Peminjaman Laptop Profesional
-            </div>
-            <div class="footer-right">
-                Halaman: <span id="page"></span> / <span id="total-pages"></span><br>
-                <strong>© 2026 E-Laptop</strong>
-            </div>
-        </div>
     </div>
-
-    <script>
-        // Script untuk nomor halaman saat printing
-        function updatePageNumbers() {
-            document.getElementById('page').textContent = 1;
-            document.getElementById('total-pages').textContent = 1;
-        }
-        updatePageNumbers();
-    </script>
 </body>
 </html>

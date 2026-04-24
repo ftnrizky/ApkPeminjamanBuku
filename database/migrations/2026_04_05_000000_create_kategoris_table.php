@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -14,7 +15,7 @@ return new class extends Migration
         Schema::create('kategoris', function (Blueprint $table) {
             $table->id();
             $table->string('nama')->unique();
-            $table->string('icon')->default('fa-laptop');
+            $table->string('icon')->default('fa-buku');
             $table->text('deskripsi')->nullable();
             $table->string('warna')->default('cyan');
             $table->timestamps();

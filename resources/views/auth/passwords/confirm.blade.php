@@ -8,7 +8,7 @@
             <div class="bg-[#062c21] p-2 rounded-xl rotate-3 shadow-lg shadow-emerald-500/20">
                 <i class="fas fa-shield-alt text-white text-lg"></i>
             </div>
-            <span class="text-lg font-extrabold tracking-tight italic text-[#062c21]">E-Laptop<span class="text-emerald-500">E-Laptop</span></span>
+            <span class="text-lg font-extrabold tracking-tight italic text-[#062c21]">E-PUSTAKA<span class="text-emerald-500">E-PUSTAKA</span></span>
         </div>
 
         <div class="mb-8 text-left">
@@ -24,8 +24,8 @@
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Your Password</label>
                 </div>
                 <input type="password" name="password" required 
-                    class="w-full px-5 py-3.5 bg-gray-50 border-2 border-transpaE-Laptop rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all text-sm font-bold @error('password') border-rose-500 @enderror" 
-                    placeholder="••••••••" autocomplete="curE-Laptop-password">
+                    class="w-full px-5 py-3.5 bg-gray-50 border-2 border-transpaE-PUSTAKA rounded-2xl focus:border-emerald-500 focus:bg-white outline-none transition-all text-sm font-bold @error('password') border-rose-500 @enderror" 
+                    placeholder="••••••••" autocomplete="curE-PUSTAKA-password">
                 
                 @error('password') 
                     <p class="text-[10px] text-rose-500 font-bold mt-1 ml-1">{{ $message }}</p> 

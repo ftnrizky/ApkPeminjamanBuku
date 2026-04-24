@@ -1,6 +1,6 @@
 # 📁 COMPLETE FILE TREE - ALL CHANGES & ADDITIONS
 
-**Project:** E-Laptop Management System v1.0
+**Project:** E-PUSTAKA Management System v1.0
 **Generated:** 20 April 2026
 **Status:** ✅ Complete & Production Ready
 
@@ -118,8 +118,8 @@ apk_peminjaman/
    • ~100 lines of code
 
 ✅ app/Http/Controllers/OverdueListController.php
-   • index() - Admin view of overdue laptops
-   • staffIndex() - Staff view of overdue laptops
+   • index() - Admin view of overdue bukus
+   • staffIndex() - Staff view of overdue bukus
    • sendReminder() - Send notification reminder
    • ~120 lines of code
 
@@ -188,7 +188,7 @@ apk_peminjaman/
    • ~80 lines of code
 
 ✅ resources/views/admin/overdue_list.blade.php
-   • Admin dashboard for overdue laptops
+   • Admin dashboard for overdue bukus
    • 3 stat cards (total, overdue, critical)
    • Filter section (search, kategori, status)
    • Table with status badges
@@ -197,7 +197,7 @@ apk_peminjaman/
    • ~280 lines of code
 
 ✅ resources/views/petugas/overdue_list.blade.php
-   • Staff view of overdue laptops
+   • Staff view of overdue bukus
    • Same as admin but simplified (no kategori)
    • Stat cards and table
    • Reminder functionality
@@ -275,7 +275,7 @@ apk_peminjaman/
 🔧 resources/views/layouts/admin.blade.php
    Changes:
    • Added new "Monitoring" section in sidebar
-   • Added menu item: "Laptop Belum Kembali" (Overdue List)
+   • Added menu item: "buku Belum Kembali" (Overdue List)
    • Added menu item: "Activity Log"
    • Both items link to new routes with proper active state
 

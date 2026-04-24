@@ -15,14 +15,19 @@ return new class extends Migration
             $table->id();
             $table->string('nama_alat');
             $table->string('slug')->unique();
-            $table->string('kategori');
+
+            
+            $table->foreignId('kategori_id')
+                  ->nullable()
+                  ->constrained('kategoris')
+                  ->nullOnDelete();
+
+            $table->integer('stok_total')->default(0);
+            $table->integer('stok_tersedia')->default(0);
+            $table->integer('harga_sewa')->default(0);
+            $table->string('kondisi');
             $table->text('deskripsi')->nullable();
-            $table->integer('stok_total');
-            $table->integer('stok_tersedia');
-            $table->enum('kondisi', ['baik', 'lecet', 'rusak', 'hilang'])->default('baik');
             $table->string('foto')->nullable();
-            $table->decimal('harga_sewa', 10, 2)->default(0);
-            $table->decimal('harga_asli', 15, 2)->default(0);
             $table->timestamps();
         });
     }

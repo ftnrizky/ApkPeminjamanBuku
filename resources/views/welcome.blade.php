@@ -1,666 +1,629 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Laptop - Sistem Informasi Peminjaman Laptop</title>
+    <title>E-Pustaka - Sistem Informasi Peminjaman Buku</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        html { scroll-padding-top: 80px; }
-        
+        * {
+            box-sizing: border-box;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        html {
+            scroll-padding-top: 96px;
+        }
+
         body {
-            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f3f4f6 100%);
-            color: #1f2937;
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Decorative elements */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -20%;
-            right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -20%;
-            left: -10%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Navbar */
-        .navbar-fixed {
-            background: rgba(255, 255, 255, 0.95);
-            border-bottom: 1px solid #e5e7eb;
-            backdrop-filter: blur(8px);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #1f2937;
-        }
-
-        .nav-logo-box {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            padding: 8px 10px;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-        }
-
-        .nav-logo-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 30%, #f8fafc 100%);
+            color: #1e293b;
         }
 
         .nav-link {
-            color: #6b7280;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.25s ease;
             position: relative;
-            padding-bottom: 2px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
             text-decoration: none;
-        }
-
-        .nav-link:hover {
-            color: #3b82f6;
+            transition: color 0.25s ease;
         }
 
         .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -2px;
             left: 0;
-            width: 0;
-            height: 2px;
-            background: #3b82f6;
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
+            bottom: -10px;
             width: 100%;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
         }
 
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-        }
-
-        .btn-outline {
-            background: white;
-            color: #3b82f6;
-            padding: 10px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            border: 2px solid #3b82f6;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-outline:hover {
-            background: #f0f9ff;
-        }
-
-        /* Glass Cards */
-        .glass-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 24px;
-            transition: all 0.3s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-            border-color: #d1d5db;
-        }
-
-        .icon-wrap {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
-            border: 2px solid #bfdbfe;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #3b82f6;
-            transition: all 0.3s ease;
-        }
-
-        .glass-card:hover .icon-wrap {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            border-color: #93c5fd;
-            transform: scale(1.1);
-        }
-
-        /* Hero Section */
-        .hero-section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding-top: 80px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            line-height: 1.1;
-            color: #1f2937;
-            margin-bottom: 24px;
-        }
-
-        .hero-content .highlight {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-content p {
-            font-size: 1.125rem;
-            color: #6b7280;
-            margin-bottom: 32px;
-            line-height: 1.6;
-            max-width: 500px;
-        }
-
-        .feature-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #4b5563;
-            font-weight: 500;
-        }
-
-        .feature-item i {
-            color: #3b82f6;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-        }
-
-        /* Section */
-        .section {
-            padding: 80px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .section.alt-bg {
-            background: #f9fafb;
-        }
-
-        .section h2 {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #1f2937;
-            margin-bottom: 16px;
-        }
-
-        .section .section-subtitle {
-            font-size: 1.125rem;
-            color: #6b7280;
-            margin-bottom: 48px;
-            max-width: 500px;
-        }
-
-        /* Stats */
-        .stat-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #3b82f6;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        /* Footer */
-        footer {
-            background: #ffffff;
-            border-top: 1px solid #e5e7eb;
-            padding: 40px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        footer a {
-            color: #3b82f6;
-            text-decoration: none;
-            transition: color 0.25s ease;
-        }
-
-        footer a:hover {
+        .nav-link:hover,
+        .nav-link.active {
             color: #2563eb;
         }
 
-        /* Hamburger */
-        .hamburger {
-            cursor: pointer;
-            width: 28px;
-            height: 22px;
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
+        }
+
+        .btn-primary-ui {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 0.9rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            padding: 0.9rem 1.3rem;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 14px 30px -18px rgba(59, 130, 246, 0.7);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+        }
+
+        .btn-primary-ui:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 18px 34px -18px rgba(59, 130, 246, 0.8);
+            filter: brightness(1.03);
+        }
+
+        .btn-secondary-ui {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 0.9rem;
+            border: 1px solid #dbe3ee;
+            background: white;
+            padding: 0.9rem 1.3rem;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+        }
+
+        .btn-secondary-ui:hover {
+            transform: translateY(-2px);
+            border-color: #bfdbfe;
+            background: #f8fbff;
+            box-shadow: 0 14px 26px -22px rgba(15, 23, 42, 0.35);
+        }
+
+        .surface-card {
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px -34px rgba(15, 23, 42, 0.18);
+            transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+        }
+
+        .surface-card:hover {
+            transform: translateY(-4px);
+            border-color: #bfdbfe;
+            box-shadow: 0 28px 52px -34px rgba(15, 23, 42, 0.24);
+        }
+
+        .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 -14px 34px -26px rgba(15, 23, 42, 0.26);
+        }
+
+        .mobile-bottom-link {
             position: relative;
-            display: none;
+            display: flex;
+            min-height: 60px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.28rem;
+            border-radius: 1rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.24s ease;
         }
 
-        .hamburger span {
-            display: block;
+        .mobile-bottom-link::before {
+            content: '';
             position: absolute;
-            height: 2.5px;
-            width: 100%;
-            background: #1f2937;
-            border-radius: 3px;
-            left: 0;
-            transform: rotate(0deg);
-            transition: .25s ease-in-out;
+            inset: 5px 10px auto;
+            height: 30px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.22) 0%, rgba(96, 165, 250, 0.08) 58%, transparent 100%);
+            opacity: 0;
+            transform: translateY(8px) scale(0.88);
+            transition: all 0.24s ease;
         }
 
-        .hamburger span:nth-child(1) { top: 0px; }
-        .hamburger span:nth-child(2) { top: 9px; }
-        .hamburger span:nth-child(3) { top: 18px; }
-
-        .hamburger.active span:nth-child(1) { top: 9px; transform: rotate(135deg); }
-        .hamburger.active span:nth-child(2) { opacity: 0; left: -60px; }
-        .hamburger.active span:nth-child(3) { top: 9px; transform: rotate(-135deg); }
-
-        @media (max-width: 768px) {
-            .hamburger { display: block; }
-            #mobileMenu { display: none; }
-            #mobileMenu.active { display: block; }
+        .mobile-bottom-link i {
+            font-size: 1rem;
+            transition: transform 0.24s ease;
         }
-        
+
+        .mobile-bottom-link span {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .mobile-bottom-link:hover,
+        .mobile-bottom-link.active {
+            color: #3b82f6;
+        }
+
+        .mobile-bottom-link:hover::before,
+        .mobile-bottom-link.active::before {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .mobile-bottom-link:hover i,
+        .mobile-bottom-link.active i {
+            transform: translateY(-1px) scale(1.08);
+        }
+
+        .mobile-bottom-link:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar-fixed">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="nav-logo">
-                <div class="nav-logo-box">
-                    <i class="fas fa-laptop" style="font-size: 18px;"></i>
+
+<body id="top" class="min-h-screen antialiased">
+    <nav class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
+            <a href="/" class="flex items-center gap-3 text-slate-900 no-underline">
+                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100 transition duration-300 hover:-translate-y-0.5 hover:shadow-md">
+                    <i class="fas fa-book-open text-lg"></i>
                 </div>
-                <span style="font-weight: 700; font-size: 18px;">E-<span style="color: #3b82f6;">LAPTOP</span></span>
+                <div>
+                    <span class="text-lg font-extrabold tracking-tight">E-<span class="text-blue-500">PUSTAKA</span></span>
+                    <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">Digital Lending System</p>
+                </div>
             </a>
 
-            <!-- Desktop Menu -->
-            <div class="hidden md:flex items-center gap-8">
+            <div class="hidden items-center gap-8 md:flex">
                 <a href="#features" class="nav-link">Fitur</a>
                 <a href="#how-it-works" class="nav-link">Cara Kerja</a>
                 <a href="#stats" class="nav-link">Statistik</a>
             </div>
 
-            <div class="hidden md:flex items-center gap-4">
+            <div class="hidden items-center gap-3 md:flex">
                 @if (Route::has('login'))
-                    <a href="{{ route('login') }}" class="btn-outline">Login</a>
+                    <a href="{{ route('login') }}" class="btn-secondary-ui">Login</a>
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="btn-primary">Daftar</a>
+                        <a href="{{ route('register') }}" class="btn-primary-ui">Daftar</a>
                     @endif
                 @endif
             </div>
 
-            <!-- Mobile Hamburger -->
-            <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
-            <div class="max-w-7xl mx-auto px-6 py-4 space-y-4">
-                <a href="#features" class="block text-gray-700 hover:text-blue-600 font-medium">Fitur</a>
-                <a href="#how-it-works" class="block text-gray-700 hover:text-blue-600 font-medium">Cara Kerja</a>
-                <a href="#stats" class="block text-gray-700 hover:text-blue-600 font-medium">Statistik</a>
-                <div class="flex gap-3 pt-4">
-                    @if (Route::has('login'))
-                        <a href="{{ route('login') }}" class="btn-outline flex-1 text-center">Login</a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="btn-primary flex-1 text-center">Daftar</a>
-                        @endif
-                    @endif
-                </div>
+            <div class="flex items-center gap-2 md:hidden">
+                @if (Route::has('login'))
+                    <a href="{{ route('login') }}"
+                        class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-slate-50">
+                        Login
+                    </a>
+                @endif
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="max-w-7xl mx-auto px-6 w-full">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="hero-content">
-                    <h1>
-                        Sistem Peminjaman <span class="highlight">Laptop</span> Modern
-                    </h1>
-                    <p>
-                        Platform mudah dan efisien untuk mengelola peminjaman laptop sekolah atau kampus. Kelola stok, tracking peminjaman, dan return laporan dalam satu sistem terintegrasi.
-                    </p>
-                    <div class="feature-list">
-                        <div class="feature-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Manajemen stok laptop real-time</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Sistem approval peminjaman otomatis</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Tracking kondisi dan denda otomatis</span>
-                        </div>
+    <main>
+        <section class="relative overflow-hidden px-4 pb-20 pt-14 sm:px-6 sm:pt-20">
+            <div class="absolute inset-x-0 top-0 -z-10 mx-auto h-72 max-w-5xl rounded-full bg-blue-100/50 blur-3xl"></div>
+            <div class="absolute right-0 top-20 -z-10 h-48 w-48 rounded-full bg-emerald-100/40 blur-3xl"></div>
+
+            <div class="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+                <div class="max-w-2xl">
+                    <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-blue-600">
+                        <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                        Platform Perpustakaan Modern
                     </div>
-                    <div class="flex gap-4">
+
+                    <h1 class="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+                        Kelola peminjaman buku dengan antarmuka yang <span class="text-blue-500">bersih, cepat, dan profesional</span>
+                    </h1>
+
+                    <p class="mt-6 max-w-xl text-base leading-8 text-slate-500 sm:text-lg">
+                        E-Pustaka membantu sekolah dan kampus mengelola koleksi buku, alur peminjaman, pengembalian, hingga laporan secara rapi dalam satu dashboard modern.
+                    </p>
+
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                         @if (Route::has('login'))
-                            <button onclick="window.location.href='{{ route('login') }}'" class="btn-primary">
+                            <a href="{{ route('login') }}" class="btn-primary-ui">
                                 <i class="fas fa-arrow-right"></i>
                                 <span>Mulai Sekarang</span>
-                            </button>
+                            </a>
+                        @endif
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}" class="btn-secondary-ui">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Buat Akun</span>
+                            </a>
                         @endif
                     </div>
-                </div>
-                <div class="hidden md:flex justify-center">
-                    <div class="w-full max-w-md rounded-3xl p-12 flex items-center justify-center" style="aspect-ratio: 1;">
-                        <img src="{{ asset('image/dashboard.png') }}" alt="Hero Image" class="w-full h-full object-cover">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Features Section -->
-    <section id="features" class="section alt-bg">
-        <div class="max-w-7xl mx-auto px-6">
-            <h2>Fitur Unggulan</h2>
-            <p class="section-subtitle">Semua yang Anda butuhkan untuk mengelola peminjaman laptop dengan efisien</p>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="glass-card">
-                    <div class="icon-wrap mb-4">
-                        <i class="fas fa-boxes"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-gray-900">Manajemen Stok</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Kelola stok laptop dengan mudah. Pantau jumlah tersedia, rusak, dan dalam peminjaman secara real-time.
-                    </p>
-                </div>
-
-                <div class="glass-card">
-                    <div class="icon-wrap mb-4">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-gray-900">Approval Sistem</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Sistem approval bertingkat untuk memastikan semua peminjaman sesuai dengan kebijakan yang berlaku.
-                    </p>
-                </div>
-
-                <div class="glass-card">
-                    <div class="icon-wrap mb-4">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-gray-900">Laporan Detail</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Buat laporan peminjaman, pengembalian, dan kondisi unit dalam format PDF yang rapi dan profesional.
-                    </p>
-                </div>
-
-                <div class="glass-card">
-                    <div class="icon-wrap mb-4">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-gray-900">Notifikasi Real-Time</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Dapatkan pemberitahuan real-time untuk setiap perubahan status peminjaman dan pengingat pengembalian.
-                    </p>
-                </div>
-
-                <div class="glass-card">
-                    <div class="icon-wrap mb-4">
-                        <i class="fas fa-ban"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-gray-900">Sistem Blacklist</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Kontrol akses dengan sistem blacklist untuk pengguna yang memiliki riwayat buruk atau tunggakan.
-                    </p>
-                </div>
-
-                <div class="glass-card">
-                    <div class="icon-wrap mb-4">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-gray-900">Multi-Role Access</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Akses multi-role untuk admin, petugas, dan peminjam dengan permission yang dapat disesuaikan.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="section">
-        <div class="max-w-7xl mx-auto px-6">
-            <h2>Cara Kerja</h2>
-            <p class="section-subtitle">Proses peminjaman yang mudah dan cepat dalam beberapa langkah sederhana</p>
-
-            <div class="grid md:grid-cols-4 gap-6">
-                <div class="glass-card text-center">
-                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">1</div>
-                    <h3 class="font-bold mb-2 text-gray-900">Ajukan Permintaan</h3>
-                    <p class="text-sm text-gray-600">Peminjam mengajukan permintaan peminjaman laptop melalui sistem</p>
-                </div>
-
-                <div class="glass-card text-center">
-                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">2</div>
-                    <h3 class="font-bold mb-2 text-gray-900">Proses Approval</h3>
-                    <p class="text-sm text-gray-600">Petugas meninjau dan menyetujui atau menolak permintaan</p>
-                </div>
-
-                <div class="glass-card text-center">
-                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">3</div>
-                    <h3 class="font-bold mb-2 text-gray-900">Ambil Laptop</h3>
-                    <p class="text-sm text-gray-600">Peminjam mengambil laptop yang sudah disetujui di lokasi yang ditentukan</p>
-                </div>
-
-                <div class="glass-card text-center">
-                    <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">4</div>
-                    <h3 class="font-bold mb-2 text-gray-900">Kembalikan & Verifikasi</h3>
-                    <p class="text-sm text-gray-600">Kembalikan laptop dan petugas verifikasi kondisi serta jumlah yang dikembalikan</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section id="stats" class="section alt-bg">
-        <div class="max-w-7xl mx-auto px-6">
-            <h2>Statistik Sistem</h2>
-            <p class="section-subtitle">Lihat data real-time tentang penggunaan sistem</p>
-
-            <div class="grid md:grid-cols-4 gap-6">
-                <div class="stat-card">
-                    <div class="stat-number">{{ env('APP_NAME') ? '1000+' : '0' }}</div>
-                    <div class="stat-label">Total Pengguna</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ env('APP_NAME') ? '500+' : '0' }}</div>
-                    <div class="stat-label">Laptop Tersedia</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ env('APP_NAME') ? '5000+' : '0' }}</div>
-                    <div class="stat-label">Transaksi Peminjaman</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ env('APP_NAME') ? '99%' : '0' }}</div>
-                    <div class="stat-label">Tingkat Kepuasan</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="section">
-        <div class="max-w-3xl mx-auto px-6 text-center">
-            <h2>Siap Memulai?</h2>
-            <p class="section-subtitle">Bergabunglah dengan ribuan pengguna yang telah merasakan kemudahan E-Laptop</p>
-            <div class="flex gap-4 justify-center">
-                @if (Route::has('register'))
-                    <button onclick="window.location.href='{{ route('register') }}'" class="btn-primary">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Daftar Gratis</span>
-                    </button>
-                @endif
-                @if (Route::has('login'))
-                    <button onclick="window.location.href='{{ route('login') }}'" class="btn-outline">
-                        Sudah Punya Akun? Login
-                    </button>
-                @endif
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-gray-200">
-                <div>
-                    <div class="flex items-center gap-2 mb-4">
-                        <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 8px 10px; border-radius: 8px; color: white; font-weight: bold;">
-                            <i class="fas fa-laptop"></i>
+                    <div class="mt-10 grid gap-3 sm:grid-cols-3">
+                        <div class="surface-card p-4">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Realtime</p>
+                            <p class="mt-2 text-sm font-semibold text-slate-900">Tracking stok & status buku</p>
                         </div>
-                        <span style="font-weight: 700;">E-<span style="color: #3b82f6;">LAPTOP</span></span>
+                        <div class="surface-card p-4">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Terintegrasi</p>
+                            <p class="mt-2 text-sm font-semibold text-slate-900">Peminjaman, denda, laporan</p>
+                        </div>
+                        <div class="surface-card p-4">
+                            <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Responsif</p>
+                            <p class="mt-2 text-sm font-semibold text-slate-900">Nyaman di desktop dan mobile</p>
+                        </div>
                     </div>
-                    <p class="text-gray-600 text-sm">Sistem manajemen peminjaman laptop modern dan efisien</p>
                 </div>
+
+                <div class="relative">
+                    <div class="surface-card relative overflow-hidden p-5 sm:p-6">
+                        <div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-blue-50 via-white to-emerald-50"></div>
+
+                        <div class="relative rounded-[28px] border border-slate-200 bg-slate-50 p-4 shadow-sm">
+                            <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Overview</p>
+                                    <h3 class="mt-2 text-xl font-bold text-slate-900">Dashboard Peminjaman</h3>
+                                </div>
+                                <div class="rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-emerald-600 shadow-sm ring-1 ring-slate-200">
+                                    Sistem Aktif
+                                </div>
+                            </div>
+
+                            <div class="mt-5 grid grid-cols-2 gap-4">
+                                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Koleksi</p>
+                                    <p class="mt-3 text-3xl font-extrabold text-slate-900">500+</p>
+                                    <p class="mt-2 text-sm text-slate-500">Buku siap dipinjam</p>
+                                </div>
+                                <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Transaksi</p>
+                                    <p class="mt-3 text-3xl font-extrabold text-blue-500">5K+</p>
+                                    <p class="mt-2 text-sm text-slate-500">Riwayat peminjaman</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-900">Approval Peminjaman</p>
+                                        <p class="mt-1 text-xs text-slate-500">Status verifikasi permintaan terbaru</p>
+                                    </div>
+                                    <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600">Live</span>
+                                </div>
+
+                                <div class="mt-4 space-y-3">
+                                    <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-100 text-blue-600">
+                                                <i class="fas fa-book"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-slate-800">Pemrograman Dasar</p>
+                                                <p class="text-xs text-slate-500">Menunggu verifikasi petugas</p>
+                                            </div>
+                                        </div>
+                                        <span class="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold text-amber-600">Pending</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+                                                <i class="fas fa-clipboard-check"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-slate-800">Sastra Indonesia</p>
+                                                <p class="text-xs text-slate-500">Disetujui dan siap diambil</p>
+                                            </div>
+                                        </div>
+                                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-600">Approved</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-7xl">
+                <div class="mb-12 max-w-2xl">
+                    <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+                        Core Features
+                    </div>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Fitur yang dibuat untuk operasional harian yang lebih efisien</h2>
+                    <p class="mt-4 text-base leading-8 text-slate-500">
+                        Setiap modul dirancang agar mudah dipakai, cepat dipahami, dan membantu tim perpustakaan bekerja lebih rapi.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div class="surface-card p-6">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">Manajemen Koleksi</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Pantau ketersediaan, stok, dan status buku secara real-time tanpa proses manual yang melelahkan.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">Approval Terstruktur</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Permintaan peminjaman dapat diverifikasi dengan alur yang jelas untuk admin dan petugas.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-600">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">Laporan Siap Unduh</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Buat laporan peminjaman dan pengembalian yang rapi untuk kebutuhan monitoring maupun audit.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-xl text-blue-600">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">Notifikasi Langsung</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Update status peminjaman, pengingat, dan info penting tampil cepat tanpa membuat pengguna bingung.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-xl text-rose-600">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">Kontrol Akses</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Kelola akun aktif dan blacklist dengan aman untuk menjaga ketertiban penggunaan sistem.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-600">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="mt-5 text-xl font-bold text-slate-900">Multi Role Access</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Hak akses admin, petugas, dan peminjam dipisahkan dengan jelas agar pengalaman lebih fokus dan aman.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="bg-slate-50 px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-7xl">
+                <div class="mb-12 max-w-2xl">
+                    <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-blue-500 shadow-sm">
+                        Workflow
+                    </div>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Alur kerja sederhana yang mudah diikuti semua pengguna</h2>
+                    <p class="mt-4 text-base leading-8 text-slate-500">
+                        Proses dibuat singkat agar pengguna bisa fokus meminjam, mengelola, dan mengembalikan buku dengan nyaman.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="surface-card p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-extrabold text-white shadow-md">1</div>
+                        <h3 class="mt-5 text-lg font-bold text-slate-900">Ajukan Peminjaman</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Peminjam memilih buku dan mengirim permintaan melalui dashboard dengan cepat.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-extrabold text-white shadow-md">2</div>
+                        <h3 class="mt-5 text-lg font-bold text-slate-900">Verifikasi Petugas</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Petugas meninjau permintaan dan memastikan proses berjalan sesuai aturan.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-extrabold text-white shadow-md">3</div>
+                        <h3 class="mt-5 text-lg font-bold text-slate-900">Pengambilan Buku</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Setelah disetujui, buku dapat diambil dan status peminjaman langsung tercatat.</p>
+                    </div>
+
+                    <div class="surface-card p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-extrabold text-white shadow-md">4</div>
+                        <h3 class="mt-5 text-lg font-bold text-slate-900">Pengembalian & Denda</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-500">Kondisi pengembalian diverifikasi dan denda dihitung otomatis bila diperlukan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="stats" class="px-4 py-20 sm:px-6">
+            <div class="mx-auto max-w-7xl">
+                <div class="mb-12 max-w-2xl">
+                    <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+                        Statistik
+                    </div>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Metrik yang membantu melihat pertumbuhan dan aktivitas</h2>
+                    <p class="mt-4 text-base leading-8 text-slate-500">
+                        Semua angka disajikan sederhana dan mudah dibaca agar keputusan operasional bisa diambil lebih cepat.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="surface-card p-6">
+                        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Total Pengguna</p>
+                        <p class="mt-4 text-4xl font-extrabold tracking-tight text-slate-900">{{ env('APP_NAME') ? '1000+' : '0' }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Admin, petugas, dan peminjam aktif</p>
+                    </div>
+                    <div class="surface-card p-6">
+                        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Koleksi Buku</p>
+                        <p class="mt-4 text-4xl font-extrabold tracking-tight text-blue-500">{{ env('APP_NAME') ? '500+' : '0' }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Judul buku siap dikelola</p>
+                    </div>
+                    <div class="surface-card p-6">
+                        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Transaksi</p>
+                        <p class="mt-4 text-4xl font-extrabold tracking-tight text-slate-900">{{ env('APP_NAME') ? '5000+' : '0' }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Riwayat peminjaman tercatat</p>
+                    </div>
+                    <div class="surface-card p-6">
+                        <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Kepuasan</p>
+                        <p class="mt-4 text-4xl font-extrabold tracking-tight text-emerald-500">{{ env('APP_NAME') ? '99%' : '0' }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Pengalaman pengguna yang stabil</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 pb-24 pt-6 sm:px-6">
+            <div class="mx-auto max-w-4xl">
+                <div class="surface-card overflow-hidden p-8 sm:p-10">
+                    <div class="rounded-3xl bg-gradient-to-r from-blue-50 via-white to-emerald-50 px-6 py-8 text-center ring-1 ring-slate-200">
+                        <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-blue-500">Get Started</p>
+                        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">Siap memulai pengelolaan perpustakaan yang lebih modern?</h2>
+                        <p class="mx-auto mt-4 max-w-2xl text-base leading-8 text-slate-500">
+                            Buat akun atau masuk sekarang untuk mulai menggunakan E-Pustaka dengan pengalaman yang lebih bersih, cepat, dan nyaman.
+                        </p>
+
+                        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}" class="btn-primary-ui">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Daftar Gratis</span>
+                                </a>
+                            @endif
+                            @if (Route::has('login'))
+                                <a href="{{ route('login') }}" class="btn-secondary-ui">
+                                    <i class="fas fa-right-to-bracket"></i>
+                                    <span>Sudah Punya Akun?</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-200 bg-white px-4 py-10 sm:px-6">
+        <div class="mx-auto max-w-7xl">
+            <div class="grid gap-8 md:grid-cols-4">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-100">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <span class="text-lg font-extrabold tracking-tight text-slate-900">E-<span class="text-blue-500">PUSTAKA</span></span>
+                    </div>
+                    <p class="mt-4 text-sm leading-7 text-slate-500">
+                        Sistem peminjaman buku modern untuk perpustakaan sekolah, kampus, dan institusi pendidikan.
+                    </p>
+                </div>
+
                 <div>
-                    <h4 class="font-bold mb-4">Produk</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#features">Fitur</a></li>
-                        <li><a href="#how-it-works">Cara Kerja</a></li>
-                        <li><a href="#stats">Statistik</a></li>
+                    <h4 class="text-sm font-bold uppercase tracking-[0.18em] text-slate-900">Produk</h4>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-500">
+                        <li><a href="#features" class="transition hover:text-blue-500">Fitur</a></li>
+                        <li><a href="#how-it-works" class="transition hover:text-blue-500">Cara Kerja</a></li>
+                        <li><a href="#stats" class="transition hover:text-blue-500">Statistik</a></li>
                     </ul>
                 </div>
+
                 <div>
-                    <h4 class="font-bold mb-4">Perusahaan</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#">Tentang Kami</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Kontak</a></li>
+                    <h4 class="text-sm font-bold uppercase tracking-[0.18em] text-slate-900">Perpustakaan</h4>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-500">
+                        <li><a href="#" class="transition hover:text-blue-500">Tentang Kami</a></li>
+                        <li><a href="#" class="transition hover:text-blue-500">Kontak</a></li>
+                        <li><a href="#" class="transition hover:text-blue-500">Dukungan</a></li>
                     </ul>
                 </div>
+
                 <div>
-                    <h4 class="font-bold mb-4">Legal</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#">Privasi</a></li>
-                        <li><a href="#">Syarat & Ketentuan</a></li>
-                        <li><a href="#">Lisensi</a></li>
+                    <h4 class="text-sm font-bold uppercase tracking-[0.18em] text-slate-900">Legal</h4>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-500">
+                        <li><a href="#" class="transition hover:text-blue-500">Privasi</a></li>
+                        <li><a href="#" class="transition hover:text-blue-500">Syarat & Ketentuan</a></li>
+                        <li><a href="#" class="transition hover:text-blue-500">Lisensi</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="text-center py-8">
-                <p class="text-gray-600 text-sm">&copy; 2026 E-Laptop. Semua hak dilindungi.</p>
+
+            <div class="mt-10 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
+                &copy; 2026 E-Pustaka. Semua hak dilindungi.
             </div>
         </div>
     </footer>
 
+    <div class="fixed inset-x-0 bottom-0 z-50 px-3 md:hidden" style="padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);">
+        <div class="mobile-bottom-nav mx-auto max-w-xl rounded-t-[28px] rounded-b-[26px] px-2 pt-2">
+            <div class="grid grid-cols-5 gap-1">
+                <a href="#top" class="mobile-bottom-link active">
+                    <i class="fas fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#features" class="mobile-bottom-link">
+                    <i class="fas fa-grid-2"></i>
+                    <span>Fitur</span>
+                </a>
+                <a href="#how-it-works" class="mobile-bottom-link">
+                    <i class="fas fa-shuffle"></i>
+                    <span>Alur</span>
+                </a>
+                <a href="#stats" class="mobile-bottom-link">
+                    <i class="fas fa-chart-column"></i>
+                    <span>Stat</span>
+                </a>
+                @if (Route::has('login'))
+                    <a href="{{ route('login') }}" class="mobile-bottom-link">
+                        <i class="fas fa-right-to-bracket"></i>
+                        <span>Login</span>
+                    </a>
+                @else
+                    <a href="#top" class="mobile-bottom-link">
+                        <i class="fas fa-compass"></i>
+                        <span>Menu</span>
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
     <script>
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const hamburger = document.getElementById('hamburger');
-            mobileMenu.classList.toggle('hidden');
-            hamburger.classList.toggle('active');
+        const mobileLinks = document.querySelectorAll('.mobile-bottom-link[href^="#"]');
+        const sections = ['top', 'features', 'how-it-works', 'stats']
+            .map(id => document.getElementById(id))
+            .filter(Boolean);
+
+        function setActiveBottomLink() {
+            const scrollY = window.scrollY + 140;
+            let activeId = 'top';
+
+            sections.forEach(section => {
+                if (scrollY >= section.offsetTop) {
+                    activeId = section.id;
+                }
+            });
+
+            mobileLinks.forEach(link => {
+                const target = link.getAttribute('href').replace('#', '');
+                link.classList.toggle('active', target === activeId);
+            });
         }
 
-        // Close menu when link is clicked
-        document.querySelectorAll('#mobileMenu a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('mobileMenu').classList.add('hidden');
-                document.getElementById('hamburger').classList.remove('active');
-            });
+        window.addEventListener('scroll', setActiveBottomLink, {
+            passive: true
         });
+        window.addEventListener('load', setActiveBottomLink);
     </script>
 </body>
+
 </html>

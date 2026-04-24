@@ -33,7 +33,7 @@ Seluruh desain sistem telah diubah dari **dark navy** menjadi **white dan light 
 - ✨ **Animated Image Element**: 
   - CSS keyframe animation `float-up-down` (3.5s duration)
   - Image bergerak naik-turun otomatis
-  - Placeholder: Icon `<i class="fas fa-laptop"></i>` yang bisa diganti user
+  - Placeholder: Icon `<i class="fas fa-buku"></i>` yang bisa diganti user
   - Instruksi: Ganti dengan `<img src="image-anda.png" alt="Login" class="w-full h-full object-cover rounded-3xl">`
 - ✨ Form styling: Glassmorphism → Clean white card dengan border gray
 - ✨ Input fields: Transparent glass → Solid gray background dengan border
@@ -171,7 +171,7 @@ from-blue-50 via-white to-gray-50 (subtle, professional)
 ```html
 <!-- Before (Placeholder) -->
 <div class="w-64 h-64 bg-gradient-to-br from-blue-100 to-gray-200 rounded-3xl shadow-xl flex items-center justify-center">
-    <i class="fas fa-laptop text-9xl text-gray-300"></i>
+    <i class="fas fa-buku text-9xl text-gray-300"></i>
 </div>
 
 <!-- After (Real Image) -->

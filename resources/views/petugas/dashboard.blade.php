@@ -3,193 +3,226 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-    <div>
-        <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Dashboard Petugas</h1>
-        <p class="text-gray-600 font-medium text-sm">Pantau aktivitas peminjaman laptop secara real-time.</p>
-    </div>
-    <div class="flex gap-3">
-        <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow duration-300">
-            <div class="bg-blue-100 text-blue-600 p-2 rounded-lg text-xs">
-                <i class="fas fa-calendar-alt"></i>
+    <div class="space-y-6">
+        <section class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-slate-500">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
+                <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">Dashboard Petugas</h1>
+                <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                    Pantau antrean verifikasi, peminjaman aktif, dan penyelesaian transaksi harian dalam satu tampilan yang ringkas.
+                </p>
             </div>
-            <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</span>
-        </div>
-    </div>
-</div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 ring-1 ring-blue-100">
+                <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                Shift aktif
+            </div>
+        </section>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-    <div class="bg-gradient-to-br from-white to-cyan-50/30 p-6 rounded-2xl border border-cyan-200 shadow-sm hover:shadow-lg hover:border-cyan-300 transition-all duration-300 group cursor-pointer">
-        <div class="bg-gradient-to-br from-cyan-100 to-cyan-50 p-4 rounded-lg text-cyan-600 font-bold text-xl mb-4 group-hover:scale-110 transition-transform duration-300">
-            <i class="fas fa-hourglass-start"></i>
-        </div>
-        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Menunggu Approval</p>
-        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ str_pad($waitingApproval, 2, '0', STR_PAD_LEFT) }} <span class="text-xs font-medium text-slate-400">Permintaan</span></h3>
-    </div>
+        <section class="grid gap-4 lg:grid-cols-3">
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Menunggu Approval</p>
+                        <p class="mt-3 text-4xl font-bold tracking-tight text-slate-900">{{ str_pad($waitingApproval, 2, '0', STR_PAD_LEFT) }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Permintaan yang perlu diproses segera.</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+            </div>
 
-    <div class="bg-gradient-to-br from-white to-amber-50/30 p-6 rounded-2xl border border-amber-200 shadow-sm hover:shadow-lg hover:border-amber-300 transition-all duration-300 group cursor-pointer">
-        <div class="bg-gradient-to-br from-amber-100 to-amber-50 p-4 rounded-lg text-amber-600 font-bold text-xl mb-4 group-hover:scale-110 transition-transform duration-300">
-            <i class="fas fa-laptop"></i>
-        </div>
-        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Laptop Dipinjam</p>
-        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ str_pad($alatDipinjam, 2, '0', STR_PAD_LEFT) }} <span class="text-xs font-medium text-slate-400">Unit</span></h3>
-    </div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Buku Dipinjam</p>
+                        <p class="mt-3 text-4xl font-bold tracking-tight text-slate-900">{{ str_pad($alatDipinjam, 2, '0', STR_PAD_LEFT) }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Unit yang sedang beredar saat ini.</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                        <i class="fas fa-book"></i>
+                    </div>
+                </div>
+            </div>
 
-    <div class="bg-gradient-to-br from-white to-teal-50/30 p-6 rounded-2xl border border-teal-200 shadow-sm hover:shadow-lg hover:border-teal-300 transition-all duration-300 group cursor-pointer">
-        <div class="bg-gradient-to-br from-teal-100 to-teal-50 p-4 rounded-lg text-teal-600 font-bold text-xl mb-4 group-hover:scale-110 transition-transform duration-300">
-            <i class="fas fa-check-circle"></i>
-        </div>
-        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Selesai Hari Ini</p>
-        <h3 class="text-3xl font-black text-slate-900 mt-1">{{ str_pad($selesaiHariIni, 2, '0', STR_PAD_LEFT) }} <span class="text-xs font-medium text-slate-400">Transaksi</span></h3>
-    </div>
-</div>
+            <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Selesai Hari Ini</p>
+                        <p class="mt-3 text-4xl font-bold tracking-tight text-slate-900">{{ str_pad($selesaiHariIni, 2, '0', STR_PAD_LEFT) }}</p>
+                        <p class="mt-2 text-sm text-slate-500">Transaksi yang selesai pada hari ini.</p>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold text-slate-900 uppercase tracking-tight">Antrean Tugas Terbaru</h2>
-        <span class="text-[10px] font-black bg-cyan-100 text-cyan-700 px-3 py-1.5 rounded-lg uppercase tracking-wider">Segera Proses</span>
-    </div>
+        <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Task Queue</p>
+                    <h2 class="mt-1 text-xl font-semibold text-slate-900">Antrean Tugas Terbaru</h2>
+                </div>
+                <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 ring-1 ring-amber-200">
+                    <i class="fas fa-bolt text-[10px]"></i>
+                    Segera proses
+                </span>
+            </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead>
-                <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">
-                    <th class="pb-4 px-2">Peminjam</th>
-                    <th class="pb-4">Laptop</th>
-                    <th class="pb-4">Kode</th>
-                    <th class="pb-4">Jenis Tugas</th>
-                    <th class="pb-4 text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($antreanTugas as $tugas)
-                <tr class="group hover:bg-cyan-50/40 transition-all duration-200">
-                    <td class="py-5 px-2">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md group-hover:scale-110 transition-transform duration-300">
-                                {{ strtoupper(substr($tugas->user->name, 0, 2)) }}
-                            </div>
-                            <span class="font-bold text-sm text-slate-900">{{ $tugas->user->name }}</span>
-                        </div>
-                    </td>
-                    <td class="py-5">
-                        <span class="text-sm font-semibold text-slate-700 block">{{ $tugas->alat->nama_alat }}</span>
-                        <span class="text-[10px] font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200 mt-1 inline-block">
-                            <i class="fas fa-cubes mr-1"></i> Qty: {{ $tugas->jumlah }}
-                        </span>
-                    </td>
-                    <td class="py-5">
-                        <span class="font-bold text-slate-900 text-sm bg-slate-100 px-3 py-1.5 rounded-lg group-hover:bg-cyan-100 group-hover:text-cyan-700 transition-all duration-200">
-                            PJM-{{ str_pad($tugas->id, 4, '0', STR_PAD_LEFT) }}
-                        </span>
-                    </td>
-                    <td class="py-5">
-                        @if($tugas->status == 'pending')
-                            <span class="bg-cyan-100 text-cyan-700 text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase border border-cyan-200 flex items-center gap-1 w-fit">
-                                <i class="fas fa-arrow-up"></i> Peminjaman
-                            </span>
-                        @elseif($tugas->status == 'dikembalikan')
-                            <span class="bg-teal-100 text-teal-700 text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase border border-teal-200 flex items-center gap-1 w-fit">
-                                <i class="fas fa-arrow-down"></i> Pengembalian
-                            </span>
-                        @elseif($tugas->status == 'disetujui')
-                            <span class="bg-green-100 text-green-700 text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase border border-green-200 flex items-center gap-1 w-fit">
-                                <i class="fas fa-check-circle"></i> Dipinjam
-                            </span>
-                        @else
-                            <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase border border-slate-200 flex items-center gap-1 w-fit">
-                                <i class="fas fa-clock"></i> {{ ucfirst($tugas->status) }}
-                            </span>
-                        @endif
-                    </td>
-                    <td class="py-5 text-center">
-                        @if($tugas->status == 'pending')
-                            <a href="{{ route('petugas.menyetujui_peminjaman') }}" 
-                            class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white text-[10px] font-bold px-6 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 uppercase tracking-wider inline-block">
-                                <i class="fas fa-check mr-1"></i> Setujui
-                            </a>
-                        @elseif($tugas->status == 'dikembalikan')
-                            <a href="{{ route('petugas.menyetujui_kembali') }}" 
-                            class="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white text-[10px] font-bold px-6 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 uppercase tracking-wider inline-block">
-                                <i class="fas fa-search mr-1"></i> Cek Laptop
-                            </a>
-                        @elseif($tugas->status == 'disetujui')
-                            <button type="button" onclick="kirimPengingat({{ $tugas->id }}, '{{ $tugas->user->name }}', '{{ $tugas->alat->nama_alat }}')" 
-                            class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-[10px] font-bold px-4 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 uppercase tracking-wider">
-                                <i class="fas fa-bell mr-1"></i> Ingatkan
-                            </button>
-                        @else
-                            <span class="text-slate-400 text-[9px] font-bold uppercase">-</span>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="py-16 text-center">
-                        <div class="flex flex-col items-center justify-center text-slate-300">
-                            <i class="fas fa-check-double text-5xl mb-4"></i>
-                            <p class="text-xs font-bold uppercase tracking-wider">Antrean Bersih - Semua Tugas Selesai</p>
-                        </div>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Peminjam</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Judul Buku</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kode</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Jenis Tugas</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 bg-white">
+                        @forelse($antreanTugas as $tugas)
+                            @php
+                                $colors = ['bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-violet-500', 'bg-rose-500'];
+                                $avatarColor = $colors[$loop->index % count($colors)];
+                            @endphp
+                            <tr class="transition duration-200 hover:bg-blue-50/50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold text-white {{ $avatarColor }}">
+                                            {{ strtoupper(substr($tugas->user->name, 0, 2)) }}
+                                        </div>
+                                        <span class="text-sm font-semibold text-slate-900">{{ $tugas->user->name }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="space-y-1">
+                                        <p class="text-sm font-semibold text-slate-900">{{ $tugas->alat->nama_alat }}</p>
+                                        <span class="inline-flex rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                                            Qty: {{ $tugas->jumlah }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                        PJM-{{ str_pad($tugas->id, 4, '0', STR_PAD_LEFT) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($tugas->status == 'pending')
+                                        <span class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-semibold text-blue-700">
+                                            <i class="fas fa-arrow-up text-[10px]"></i>Peminjaman
+                                        </span>
+                                    @elseif($tugas->status == 'dikembalikan')
+                                        <span class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                                            <i class="fas fa-arrow-down text-[10px]"></i>Pengembalian
+                                        </span>
+                                    @elseif($tugas->status == 'disetujui')
+                                        <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                                            <i class="fas fa-check-circle text-[10px]"></i>Dipinjam
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+                                            <i class="fas fa-clock text-[10px]"></i>{{ ucfirst($tugas->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($tugas->status == 'pending')
+                                        <a href="{{ route('petugas.menyetujui_peminjaman') }}"
+                                            class="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-blue-400 hover:shadow-md">
+                                            <i class="fas fa-check text-xs"></i>Setujui
+                                        </a>
+                                    @elseif($tugas->status == 'dikembalikan')
+                                        <a href="{{ route('petugas.menyetujui_kembali') }}"
+                                            class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-md">
+                                            <i class="fas fa-magnifying-glass text-xs"></i>Cek Buku
+                                        </a>
+                                    @elseif($tugas->status == 'disetujui')
+                                        <button
+                                            type="button"
+                                            onclick="kirimPengingat({{ $tugas->id }}, '{{ $tugas->user->name }}', '{{ $tugas->alat->nama_alat }}')"
+                                            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700">
+                                            <i class="fas fa-bell text-xs"></i>Ingatkan
+                                        </button>
+                                    @else
+                                        <span class="text-sm font-medium text-slate-300">-</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-16 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                            <i class="fas fa-check-double text-xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-semibold text-slate-900">Antrean Bersih</h3>
+                                        <p class="text-sm text-slate-500">Semua tugas sudah selesai diproses.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
-</div>
 @endsection
 
 @section('extra-script')
-<script>
-    function kirimPengingat(id, namaPeminjam, namaAlat) {
-        Swal.fire({
-            title: 'Kirim Pengingat?',
-            text: `Kirim pengingat ke ${namaPeminjam} untuk mengembalikan ${namaAlat}?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#f59e0b',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Ya, Kirim!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`/petugas/pengingat/${id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: data.message,
-                            confirmButtonColor: '#06b6d4',
-                            timer: 3000,
-                            timerProgressBar: true
+    <script>
+        function kirimPengingat(id, namaPeminjam, namaAlat) {
+            Swal.fire({
+                title: 'Kirim Pengingat?',
+                text: `Kirim pengingat ke ${namaPeminjam} untuk mengembalikan "${namaAlat}"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Ya, Kirim!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/petugas/pengingat/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    confirmButtonColor: '#3b82f6',
+                                    timer: 3000,
+                                    timerProgressBar: true
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal!',
+                                    text: data.message,
+                                    confirmButtonColor: '#ef4444'
+                                });
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan saat mengirim pengingat.',
+                                confirmButtonColor: '#ef4444'
+                            });
                         });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: data.message,
-                            confirmButtonColor: '#ef4444'
-                        });
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan saat mengirim pengingat.',
-                        confirmButtonColor: '#ef4444'
-                    });
-                });
-            }
-        });
-    }
-</script>
+                }
+            });
+        }
+    </script>
 @endsection

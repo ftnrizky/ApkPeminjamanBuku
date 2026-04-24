@@ -51,7 +51,7 @@ class OverdueListController extends Controller
             return $p;
         });
 
-        $kategoris = \App\Models\Alat::select('kategori')->distinct()->get();
+        $kategoris = \App\Models\Kategori::all();
         $statuses = ['pinjam', 'disetujui'];
 
         return view('admin.overdue_list', compact('peminjamanList', 'kategoris', 'statuses'));

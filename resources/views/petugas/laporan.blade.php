@@ -6,7 +6,7 @@
 <div class="no-print flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
     <div>
         <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Laporan <span class="text-cyan-600">Aktivitas</span></h1>
-        <p class="text-slate-500 font-medium text-sm tracking-wider mt-1">Export data peminjaman laptop untuk arsip dan dokumentasi</p>
+        <p class="text-slate-500 font-medium text-sm tracking-wider mt-1">Export data peminjaman buku untuk arsip dan dokumentasi</p>
     </div>
 </div>
 
@@ -44,10 +44,10 @@
     {{-- Header --}}
     <div class="flex flex-col items-center justify-center text-center border-b-2 border-slate-200 pb-8 mb-10">
         <div class="inline-block bg-gradient-to-r from-cyan-100 to-teal-100 px-4 py-2 rounded-lg mb-3">
-            <i class="fas fa-laptop text-cyan-600 text-lg"></i>
+            <i class="fas fa-buku text-cyan-600 text-lg"></i>
         </div>
-        <h3 class="text-3xl font-black text-slate-900 uppercase tracking-tight leading-none">Rekapitulasi Peminjaman Laptop</h3>
-        <p class="text-[11px] font-bold text-cyan-600 uppercase tracking-wider mt-3">E-Laptop Management System - Tahun 2026</p>
+        <h3 class="text-3xl font-black text-slate-900 uppercase tracking-tight leading-none">Rekapitulasi Peminjaman buku</h3>
+        <p class="text-[11px] font-bold text-cyan-600 uppercase tracking-wider mt-3">E-PUSTAKA Management System - Tahun 2026</p>
     </div>
 
     {{-- Table Container --}}
@@ -58,7 +58,7 @@
                     <th class="pb-4 px-3 text-center w-12">No</th>
                     <th class="pb-4 px-3">Tanggal</th>
                     <th class="pb-4 px-3">Peminjam</th>
-                    <th class="pb-4 px-3">Laptop</th>
+                    <th class="pb-4 px-3">buku</th>
                     <th class="pb-4 px-3 text-center">Qty</th>
                     <th class="pb-4 px-3 text-center">Status</th>
                 </tr>
@@ -78,7 +78,7 @@
                     </td>
                     <td class="py-4 px-3">
                         <p class="text-xs font-semibold text-slate-700">{{ $data->alat->nama_alat }}</p>
-                        <p class="text-[9px] text-slate-500 font-medium">{{ $data->alat->kategori ?? '' }}</p>
+                        <p class="text-[9px] text-slate-500 font-medium">{{ $data->alat->kategoris ?? '' }}</p>
                     </td>
                     <td class="py-4 px-3 text-center">
                         <span class="inline-block bg-cyan-100 text-cyan-700 px-2 py-1 rounded text-xs font-bold">{{ $data->jumlah }} Unit</span>
@@ -147,14 +147,14 @@
             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-20">Admin / Petugas,</p>
             <div class="border-t-2 border-slate-400 pt-3">
                 <p class="text-xs font-bold text-slate-900 uppercase">Nama Petugas</p>
-                <p class="text-[9px] font-medium text-slate-500 mt-1">Staff E-Laptop</p>
+                <p class="text-[9px] font-medium text-slate-500 mt-1">Staff E-PUSTAKA</p>
             </div>
         </div>
         <div>
             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-20">Mengetahui</p>
             <div class="border-t-2 border-slate-400 pt-3">
                 <p class="text-xs font-bold text-slate-900 uppercase">Kepala Bagian</p>
-                <p class="text-[9px] font-medium text-slate-500 mt-1">E-Laptop Management</p>
+                <p class="text-[9px] font-medium text-slate-500 mt-1">E-PUSTAKA Management</p>
             </div>
         </div>
     </div>
@@ -162,7 +162,7 @@
     {{-- Print Info --}}
     <div class="mt-8 pt-6 border-t border-slate-200 text-center">
         <p class="text-[9px] text-slate-400">
-            <i class="fas fa-print mr-1"></i> Dicetak: {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y - H:i') }} WIB | E-Laptop Management System © 2026
+            <i class="fas fa-print mr-1"></i> Dicetak: {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y - H:i') }} WIB | E-PUSTAKA Management System © 2026
         </p>
     </div>
 </div>

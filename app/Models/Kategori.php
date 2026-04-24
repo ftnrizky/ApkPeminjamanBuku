@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Kategori extends Model
 {
     protected $table = 'kategoris';
-    
+
     protected $fillable = [
         'nama',
         'icon',
@@ -15,8 +15,9 @@ class Kategori extends Model
         'warna'
     ];
 
+    // 🔥 RELASI KE ALAT
     public function alats()
     {
-        return $this->hasMany(Alat::class);
+        return $this->hasMany(Alat::class, 'kategori_id');
     }
 }

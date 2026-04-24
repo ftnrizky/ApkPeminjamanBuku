@@ -1,114 +1,428 @@
 @extends('layouts.peminjam')
 
-@section('title', 'Pengembalian Laptop')
+@section('title', 'Pengembalian Buku')
 
 @section('content')
-    {{-- HEADER --}}
-    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-            <h1 class="text-4xl font-bold text-slate-900 tracking-tight leading-none">
-                Pengembalian <span class="text-cyan-600">Laptop</span>
-            </h1>
-            <p class="text-slate-500 text-[10px] font-medium mt-2 uppercase tracking-wider">Selesaikan peminjaman aktif dan cek denda Anda</p>
-        </div>
-        
-        @if(session('success'))
-            <div class="bg-teal-50 border border-teal-200 text-teal-700 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md animate-pulse flex items-center gap-2">
-                <i class="fas fa-check-circle"></i> {{ session('success') }}
-            </div>
-        @endif
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  --bg: #F8F7F4;
+  --surface: #FFFFFF;
+  --surface-2: #F3F2EF;
+  --ink: #111110;
+  --ink-2: #6B6A67;
+  --ink-3: #A8A7A4;
+  --border: #E8E7E3;
+  --border-2: #D4D3CF;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --green-border: #BBF7D0;
+  --red: #DC2626;
+  --red-bg: #FFF5F5;
+  --red-border: #FECACA;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --amber-border: #FDE68A;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.07);
+}
+
+* { box-sizing: border-box; }
+body { font-family: 'Instrument Sans', sans-serif !important; background: var(--bg) !important; -webkit-font-smoothing: antialiased; }
+
+.page-wrap { animation: fadeUp 0.4s ease both; display: flex; flex-direction: column; gap: 20px; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 6px;
+}
+
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.7px;
+  line-height: 1.1;
+}
+
+.success-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 100px;
+}
+
+/* ── Info Banner ── */
+.info-banner {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.info-banner-icon {
+  width: 34px; height: 34px;
+  background: #FEF3C7;
+  border: 1px solid var(--amber-border);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--amber);
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.info-rules {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.info-rule-item {}
+.info-rule-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #92400E;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 2px;
+}
+
+.info-rule-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: #78350F;
+}
+
+.info-rule-val.red { color: var(--red); }
+
+/* ── Return Card ── */
+.return-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.return-card.overdue {
+  border-color: #FECACA;
+}
+
+.return-card:hover { box-shadow: var(--shadow-md); }
+
+.rc-body {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0;
+  align-items: stretch;
+}
+
+.rc-cover {
+  width: 110px;
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.rc-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.rc-cover-placeholder {
+  font-size: 28px;
+  color: var(--border-2);
+}
+
+.rc-info {
+  padding: 22px 24px;
+  flex: 1;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.rc-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.rc-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rc-badge.code { background: var(--ink); color: white; }
+.rc-badge.cat  { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--border); }
+
+.rc-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.4px;
+  margin-bottom: 16px;
+}
+
+.rc-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 20px 32px;
+}
+
+.rc-meta-item {}
+.rc-meta-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 3px;
+}
+
+.rc-meta-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.rc-meta-val.ok   { color: var(--green); }
+.rc-meta-val.late { color: var(--red); }
+.rc-meta-val.denda { color: var(--red); }
+
+.rc-action {
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 160px;
+}
+
+.btn-return {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
+  font-family: 'Instrument Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.btn-return:hover {
+  background: var(--green);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(22,163,74,0.28);
+}
+
+/* ── Empty ── */
+.empty-state {
+  background: var(--surface);
+  border: 1px dashed var(--border-2);
+  border-radius: var(--radius-lg);
+  padding: 70px 24px;
+  text-align: center;
+}
+
+.empty-icon { font-size: 36px; color: var(--border-2); margin-bottom: 14px; }
+
+.empty-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+}
+
+.empty-sub { font-size: 13px; color: var(--ink-3); margin-bottom: 20px; }
+
+.btn-catalog {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--ink);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-catalog:hover {
+  background: var(--green);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .rc-body { grid-template-columns: 1fr; }
+  .rc-cover { width: 100%; height: 140px; }
+  .rc-info { border-left: none; border-right: none; border-top: 1px solid var(--border); padding: 16px; }
+  .rc-meta-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .rc-action { border-top: 1px solid var(--border); padding: 16px; min-width: unset; justify-content: stretch; }
+  .btn-return { width: 100%; justify-content: center; }
+  .info-rules { flex-direction: column; gap: 10px; }
+}
+</style>
+
+<div class="page-wrap">
+
+  {{-- Header --}}
+  <div class="page-header">
+    <div>
+      <div class="page-eyebrow">E-Pustaka</div>
+      <div class="page-title">Pengembalian Buku</div>
     </div>
 
-    {{-- INFO PANEL --}}
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 flex flex-col md:flex-row gap-6 mb-10 shadow-sm">
-        <div class="bg-amber-500 text-white w-12 h-12 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
-            <i class="fas fa-alert-circle text-lg"></i>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <div>
-                <p class="text-[10px] text-amber-900 font-bold uppercase tracking-wider">Aturan Dasar</p>
-                <p class="text-xs text-amber-800 font-medium uppercase mt-1">Maksimal pinjam 3 hari kerja.</p>
-            </div>
-            <div>
-                <p class="text-[10px] text-amber-900 font-bold uppercase tracking-wider">Denda Terlambat</p>
-                <p class="text-xs text-rose-600 font-bold uppercase mt-1">Rp 5.000 per hari.</p>
-            </div>
-            <div>
-                <p class="text-[10px] text-amber-900 font-bold uppercase tracking-wider">Denda Kondisi</p>
-                <p class="text-xs text-amber-800 font-medium uppercase mt-1">Rusak/Hilang sesuai nilai laptop.</p>
-            </div>
-        </div>
+    @if(session('success'))
+      <div class="success-chip">
+        <i class="fas fa-check-circle"></i>
+        {{ session('success') }}
+      </div>
+    @endif
+  </div>
+
+  {{-- Info Banner --}}
+  <div class="info-banner">
+    <div class="info-banner-icon"><i class="fas fa-info"></i></div>
+    <div class="info-rules">
+      <div class="info-rule-item">
+        <div class="info-rule-lbl">Aturan Dasar</div>
+        <div class="info-rule-val">Maksimal pinjam 3 hari kerja</div>
+      </div>
+      <div class="info-rule-item">
+        <div class="info-rule-lbl">Denda Terlambat</div>
+        <div class="info-rule-val red">Rp 5.000 / hari</div>
+      </div>
+      <div class="info-rule-item">
+        <div class="info-rule-lbl">Denda Kondisi</div>
+        <div class="info-rule-val">Rusak / Hilang sesuai nilai buku</div>
+      </div>
     </div>
+  </div>
 
-    {{-- LIST LAPTOP AKTIF --}}
-    <div class="space-y-6">
-        @forelse($peminjamans as $pinjam)
-            <div class="bg-white rounded-2xl p-8 border {{ $pinjam->estimasi_denda > 0 ? 'border-rose-200 bg-rose-50/5' : 'border-slate-200' }} shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-cyan-500/5 to-teal-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+  {{-- List --}}
+  @forelse($peminjamans as $pinjam)
+    <div class="return-card {{ $pinjam->estimasi_denda > 0 ? 'overdue' : '' }}"
+         style="animation: fadeUp {{ 0.1 + ($loop->index * 0.06) }}s ease both;">
+      <div class="rc-body">
 
-                <div class="flex flex-col lg:flex-row items-center gap-8 relative z-10">
-                    <div class="w-40 h-40 {{ $pinjam->estimasi_denda > 0 ? 'bg-gradient-to-br from-rose-100 to-orange-100' : 'bg-gradient-to-br from-cyan-100 to-teal-100' }} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform duration-300 border {{ $pinjam->estimasi_denda > 0 ? 'border-rose-200' : 'border-cyan-200' }}">
-                        @if($pinjam->alat->foto)
-                            <img src="{{ asset('storage/' . $pinjam->alat->foto) }}" class="w-full h-full object-cover rounded-xl">
-                        @else
-                            <i class="fas fa-laptop {{ $pinjam->estimasi_denda > 0 ? 'text-rose-400' : 'text-cyan-400' }} text-6xl opacity-40"></i>
-                        @endif
-                    </div>
+        {{-- Cover --}}
+        <div class="rc-cover">
+          @if($pinjam->alat->foto)
+            <img src="{{ asset('storage/' . $pinjam->alat->foto) }}" alt="{{ $pinjam->alat->nama_alat }}">
+          @else
+            <div class="rc-cover-placeholder"><i class="fas fa-book"></i></div>
+          @endif
+        </div>
 
-                    <div class="flex-1 text-center lg:text-left">
-                        <div class="flex flex-wrap justify-center lg:justify-start gap-2 mb-3">
-                            <span class="bg-slate-900 text-white text-[9px] font-bold px-3 py-1 rounded-lg uppercase tracking-tight">
-                                PJM-{{ str_pad($pinjam->id, 4, '0', STR_PAD_LEFT) }}
-                            </span>
-                            <span class="bg-cyan-100 text-cyan-700 text-[9px] font-bold px-3 py-1 rounded-lg uppercase tracking-tight flex items-center gap-1">
-                                <i class="fas fa-laptop"></i> {{ $pinjam->alat->kategori }}
-                            </span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-slate-900 tracking-tight mb-1">{{ $pinjam->alat->nama_alat }}</h3>
-
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Jumlah</p>
-                                <p class="text-lg font-bold text-slate-900">{{ $pinjam->jumlah }} <span class="text-xs text-slate-400 font-medium">Unit</span></p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Batas Kembali</p>
-                                <p class="text-lg font-bold {{ $pinjam->estimasi_denda > 0 ? 'text-rose-600' : 'text-teal-600' }}">
-                                    {{ \Carbon\Carbon::parse($pinjam->tgl_kembali)->format('d M Y') }}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Denda</p>
-                                <p class="text-lg font-bold {{ $pinjam->estimasi_denda > 0 ? 'text-rose-600' : 'text-slate-900' }}">
-                                    Rp {{ number_format($pinjam->estimasi_denda, 0, ',', '.') }}
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-1">Pembayaran</p>
-                                <p class="text-lg font-bold text-teal-700">Tunai ke Petugas</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex-shrink-0 w-full lg:w-auto pt-6 lg:pt-0 border-t lg:border-t-0 lg:border-l border-slate-200 lg:pl-10">
-                        <form action="{{ route('peminjam.proses_kembali', $pinjam->id) }}" method="POST" onsubmit="return confirm('Sudah siap mengembalikan laptop?')">
-                            @csrf
-                            <button type="submit" class="w-full lg:w-auto bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold px-10 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 text-xs tracking-wider uppercase flex items-center justify-center gap-2">
-                                <i class="fas fa-check"></i> Ajukan Pengembalian
-                            </button>
-                        </form>
-                    </div>
-                </div>
+        {{-- Info --}}
+        <div class="rc-info">
+          <div class="rc-badges">
+            <span class="rc-badge code">PJM-{{ str_pad($pinjam->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <span class="rc-badge cat">{{ $pinjam->alat->kategoris ?? '-' }}</span>
+          </div>
+          <div class="rc-name">{{ $pinjam->alat->nama_alat }}</div>
+          <div class="rc-meta-grid">
+            <div class="rc-meta-item">
+              <div class="rc-meta-lbl">Jumlah</div>
+              <div class="rc-meta-val">{{ $pinjam->jumlah }} <span style="font-size:11px;font-weight:500;color:var(--ink-3);">unit</span></div>
             </div>
-        @empty
-            <div class="text-center py-24 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl border-2 border-dashed border-cyan-200 shadow-sm">
-                <i class="fas fa-check-double text-cyan-300 text-5xl mb-4"></i>
-                <h3 class="text-2xl font-bold text-slate-900 tracking-tight">Tidak Ada Peminjaman Aktif</h3>
-                <p class="text-slate-500 text-[10px] font-medium uppercase tracking-wider mt-2">Semua laptop sudah dikembalikan. Mantap!</p>
-                <a href="{{ route('peminjam.katalog') }}" class="inline-block mt-6 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-lg hover:from-cyan-600 hover:to-cyan-700 transition-all hover:shadow-lg">
-                    Pinjam Laptop Lagi →
-                </a>
+            <div class="rc-meta-item">
+              <div class="rc-meta-lbl">Batas Kembali</div>
+              <div class="rc-meta-val {{ $pinjam->estimasi_denda > 0 ? 'late' : 'ok' }}">
+                {{ \Carbon\Carbon::parse($pinjam->tgl_kembali)->format('d M Y') }}
+              </div>
             </div>
-        @endforelse
+            <div class="rc-meta-item">
+              <div class="rc-meta-lbl">Estimasi Denda</div>
+              <div class="rc-meta-val {{ $pinjam->estimasi_denda > 0 ? 'denda' : '' }}">
+                Rp {{ number_format($pinjam->estimasi_denda, 0, ',', '.') }}
+              </div>
+            </div>
+            <div class="rc-meta-item">
+              <div class="rc-meta-lbl">Pembayaran</div>
+              <div class="rc-meta-val" style="font-size:12px;color:var(--green);">Tunai ke Petugas</div>
+            </div>
+          </div>
+        </div>
+
+        {{-- Action --}}
+        <div class="rc-action">
+          <form action="{{ route('peminjam.proses_kembali', $pinjam->id) }}" method="POST"
+                onsubmit="return confirm('Sudah siap mengembalikan buku?')">
+            @csrf
+            <button type="submit" class="btn-return">
+              <i class="fas fa-check"></i>
+              Kembalikan
+            </button>
+          </form>
+        </div>
+
+      </div>
     </div>
+  @empty
+    <div class="empty-state">
+      <div class="empty-icon"><i class="fas fa-check-double"></i></div>
+      <div class="empty-title">Semua Buku Sudah Dikembalikan</div>
+      <div class="empty-sub">Tidak ada peminjaman aktif saat ini.</div>
+      <a href="{{ route('peminjam.katalog') }}" class="btn-catalog">
+        <i class="fas fa-book-open"></i> Pinjam Buku Lagi
+      </a>
+    </div>
+  @endforelse
+
+</div>
+
 @endsection

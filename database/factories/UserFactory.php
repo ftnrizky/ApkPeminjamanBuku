@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 class UserFactory extends Factory
 {
     /**
-     * The curE-Laptop password being used by the factory.
+     * The curE-PUSTAKA password being used by the factory.
      */
     protected static ?string $password;
 

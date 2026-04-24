@@ -20,12 +20,12 @@
 <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
     <div>
         <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Verifikasi <span class="text-cyan-600">Pengembalian</span></h1>
-        <p class="text-slate-500 font-medium text-sm tracking-wider mt-1">Periksa kondisi fisik laptop & hitung denda otomatis</p>
+        <p class="text-slate-500 font-medium text-sm tracking-wider mt-1">Periksa kondisi fisik buku & hitung denda otomatis</p>
     </div>
     <div class="flex gap-3">
         <div class="bg-gradient-to-r from-cyan-50 to-teal-50 px-6 py-3 rounded-xl border border-cyan-200 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow duration-300">
             <div class="w-2.5 h-2.5 bg-cyan-500 rounded-full animate-pulse"></div>
-            <span class="text-xs font-bold text-cyan-700 uppercase tracking-wider">{{ $pengembalians->count() }} Laptop Menunggu Verifikasi</span>
+            <span class="text-xs font-bold text-cyan-700 uppercase tracking-wider">{{ $pengembalians->count() }} buku Menunggu Verifikasi</span>
         </div>
     </div>
 </div>
@@ -36,7 +36,7 @@
             <thead>
                 <tr class="text-[10px] font-bold text-slate-600 uppercase tracking-widest border-b-2 border-slate-200">
                     <th class="pb-4 px-4 w-32">Kode Pinjam</th>
-                    <th class="pb-4 px-4">Laptop</th>
+                    <th class="pb-4 px-4">buku</th>
                     <th class="pb-4 px-4">Peminjam</th> 
                     <th class="pb-4 px-4 text-center">Qty</th>
                     <th class="pb-4 px-4 text-center w-40">Aksi</th>
@@ -89,7 +89,7 @@
                                 <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 border-2 border-teal-100">
                                     <i class="fas fa-check-double text-teal-500 text-3xl"></i>
                                 </div>
-                                <p class="text-slate-500 font-bold uppercase tracking-wider text-xs">Semua laptop sudah diverifikasi</p>
+                                <p class="text-slate-500 font-bold uppercase tracking-wider text-xs">Semua buku sudah diverifikasi</p>
                                 <p class="text-slate-400 text-[11px] mt-1 font-medium">Tidak ada antrian pengembalian yang menunggu</p>
                             </div>
                         </td>
@@ -109,10 +109,10 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-white/20 rounded-md flex items-center justify-center">
-                        <i class="fas fa-laptop text-sm"></i>
+                        <i class="fas fa-buku text-sm"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-base">Verifikasi Kondisi Laptop</h3>
+                        <h3 class="font-bold text-base">Verifikasi Kondisi buku</h3>
                         <p class="text-cyan-100 text-[10px] font-medium">Periksa setiap unit dengan teliti</p>
                     </div>
                 </div>
@@ -137,7 +137,7 @@
                         <span id="modal-peminjam" class="text-xs font-semibold text-slate-900"></span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[9px] font-bold text-slate-500 uppercase w-16">Laptop:</span>
+                        <span class="text-[9px] font-bold text-slate-500 uppercase w-16">buku:</span>
                         <span id="modal-alat" class="text-xs font-semibold text-slate-900"></span>
                     </div>
                     <div class="flex items-center gap-2">

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Log Aktivitas - E-Laptop</title>
+    <title>Log Aktivitas - E-PUSTAKA</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -101,7 +101,7 @@
     <div class="container">
         <div class="header">
             <h1>LOG AKTIVITAS SISTEM</h1>
-            <p>E-LAPTOP MANAGEMENT SYSTEM - Laporan Lengkap Aktivitas Pengguna</p>
+            <p>E-PUSTAKA MANAGEMENT SYSTEM - Laporan Lengkap Aktivitas Pengguna</p>
         </div>
 
         <div class="summary">
@@ -144,7 +144,7 @@
         </table>
 
         <div class="footer">
-            <p>E-Laptop Management System © 2026 | Laporan ini bersifat rahasia dan hanya untuk internal use</p>
+            <p>E-PUSTAKA Management System © 2026 | Laporan ini bersifat rahasia dan hanya untuk internal use</p>
         </div>
     </div>
 </body>

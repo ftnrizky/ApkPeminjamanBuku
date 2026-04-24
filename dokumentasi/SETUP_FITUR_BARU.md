@@ -68,7 +68,7 @@ php artisan migrate
 
 ---
 
-### 3. **Laptop Belum Dikembalikan (Overdue List)**
+### 3. **buku Belum Dikembalikan (Overdue List)**
 
 #### Controller: `app/Http/Controllers/OverdueListController.php`
 
@@ -90,13 +90,13 @@ php artisan migrate
 - Total Kritis (>3 hari)
 
 **Filter:**
-- Search by peminjam/laptop name
+- Search by peminjam/buku name
 - Filter by kategori
 - Filter by status
 - Quick "Terlambat" button
 
 **Table:**
-- Kode, Peminjam, Laptop, Qty
+- Kode, Peminjam, buku, Qty
 - Tanggal pinjam, batas kembali
 - Status dengan color coding:
   - Cyan: On-time (within deadline)
@@ -140,7 +140,7 @@ Update `resources/views/layouts/admin.blade.php`:
     <i class="fas fa-history"></i> Activity Log
 </a>
 <a href="{{ route('admin.overdue_list') }}" class="...">
-    <i class="fas fa-exclamation-circle"></i> Laptop Belum Kembali
+    <i class="fas fa-exclamation-circle"></i> buku Belum Kembali
 </a>
 ```
 
@@ -176,7 +176,7 @@ ActivityLog::log(
     "Peminjaman dibuat oleh {$user->name}",
     'Peminjaman',
     $peminjaman->id,
-    ['laptop' => $peminjaman->alat->nama_alat]
+    ['buku' => $peminjaman->alat->nama_alat]
 );
 
 // Di PetugasController::prosesPersetujuanPinjam
@@ -217,8 +217,8 @@ ActivityLog::log(
 1. Admin/Petugas click "Notif" button di Overdue List
 2. System calculate days overdue/remaining
 3. Send reminder message:
-   - **If on-time:** "Ingatkan untuk mengembalikan laptop dalam X hari"
-   - **If overdue:** "Laptop SUDAH MELEWATI BATAS. Telah terlambat X hari"
+   - **If on-time:** "Ingatkan untuk mengembalikan buku dalam X hari"
+   - **If overdue:** "buku SUDAH MELEWATI BATAS. Telah terlambat X hari"
 
 ### Future Enhancement:
 - Email notifications

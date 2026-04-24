@@ -9,17 +9,17 @@ class Alat extends Model
     protected $fillable = [
         'nama_alat',
         'slug',
-        'kategori',
-        'kategori_id',
-        'deskripsi',
+        'kategori_id', 
         'stok_total',
         'stok_tersedia',
-        'foto',
         'harga_sewa',
-        'kondisi'
+        'kondisi',
+        'deskripsi',
+        'foto',
     ];
 
-    public function kategoriModel()
+    
+    public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id');
     }

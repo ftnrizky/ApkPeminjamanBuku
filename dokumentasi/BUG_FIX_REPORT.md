@@ -82,7 +82,7 @@ Setup Tailwind dengan PostCSS (lihat panduan di TAILWIND_SETUP.md)
 
 ### 1. Minimal Test Data
 ```
-Nama: Test Laptop 1
+Nama: Test buku 1
 Kategori: Gaming
 Kondisi: Baik
 Stok: 5

@@ -45,7 +45,7 @@
         <div class="header">
             <div class="header-row">
                 <div>
-                    <div class="brand">E-Laptop Management</div>
+                    <div class="brand">E-PUSTAKA Management</div>
                     <div class="subtitle">Laporan Transaksi Peminjaman</div>
                 </div>
                 <div class="meta">
@@ -81,7 +81,7 @@
                         <th style="width: 3%;">No</th>
                         <th style="width: 7%;">Kode</th>
                         <th style="width: 14%;">Peminjam</th>
-                        <th style="width: 16%;">Laptop</th>
+                        <th style="width: 16%;">buku</th>
                         <th style="width: 5%;" class="text-center">Qty</th>
                         <th style="width: 9%;" class="text-center">Pinjam</th>
                         <th style="width: 9%;" class="text-center">Kembali</th>
@@ -114,7 +114,7 @@
         </div>
 
         <div class="footer">
-            <div>E-Laptop System | Laporan Peminjaman</div>
+            <div>E-PUSTAKA System | Laporan Peminjaman</div>
             <div>Hal. 1/1</div>
         </div>
     </div>

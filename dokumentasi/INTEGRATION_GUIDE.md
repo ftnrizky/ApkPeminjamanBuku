@@ -167,7 +167,7 @@ public function prosesKembali(Request $request, $id)
         $peminjaman->alat->nama_alat
     );
     
-    return redirect()->back()->with('success', 'Laptop berhasil dikembalikan');
+    return redirect()->back()->with('success', 'buku berhasil dikembalikan');
 }
 ```
 
@@ -248,7 +248,7 @@ public function sendReminder($id)
 | `pinjam` | `logPeminjaman()` | Borrower creates loan request |
 | `setujui_pinjam` | `logApprovalPeminjaman()` | Admin/Staff approves loan |
 | `tolak_pinjam` | `logRejectionPeminjaman()` | Admin/Staff rejects loan |
-| `kembali` | `logPengembalian()` | Borrower returns laptop |
+| `kembali` | `logPengembalian()` | Borrower returns buku |
 | `setujui_kembali` | `logApprovalPengembalian()` | Staff verifies return |
 | `reminder` | `logReminder()` | Reminder sent |
 

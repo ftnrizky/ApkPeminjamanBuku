@@ -2,131 +2,183 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Member E-Laptop</title>
+    <title>Daftar Pengguna - E-PUSTAKA</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { font-size: 9px; }
-        body { font-family: Arial, sans-serif; color: #1a1a1a; background: #fff; line-height: 1.2; }
-        .page { width: 210mm; height: 297mm; padding: 8mm 8mm; margin: 0 auto; display: flex; flex-direction: column; }
-        @media print {
-            body { margin: 0; padding: 0; }
-            .page { max-width: 100%; height: auto; padding: 8mm; margin: 0; }
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
         }
-        .header { margin-bottom: 6px; border-bottom: 1.5px solid #0ea5e9; padding-bottom: 5px; flex-shrink: 0; }
-        .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
-        .brand { font-size: 12px; font-weight: 800; color: #0f172a; }
-        .subtitle { font-size: 7px; color: #475569; margin-top: 1px; }
-        .meta { font-size: 7px; color: #475569; text-align: right; }
-        .meta-line { margin: 1px 0; }
-        .content { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 7px; }
-        th, td { padding: 2px 2px; border: 0.5px solid #cbd5e1; font-size: 7px; }
-        th { text-align: left; background: #0ea5e9; color: #fff; text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; line-height: 1.1; }
-        tbody tr:nth-child(even) { background: #f9fafb; }
+
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 10pt;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header-top {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .header-title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .header-subtitle {
+            font-size: 10pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top: 15px;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: bold;
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 8.5pt;
+            border: 1px solid #e2e8f0;
+            padding: 10px 8px;
+        }
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            vertical-align: middle;
+            word-wrap: break-word;
+            font-size: 9pt;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .summary { margin-top: 4px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; flex-shrink: 0; }
-        .metric { background: #f8fafc; border: 1px solid #cbd5e1; padding: 4px 6px; border-radius: 3px; text-align: center; }
-        .metric-label { font-size: 6px; color: #475569; text-transform: uppercase; margin-bottom: 1px; }
-        .metric-value { font-size: 11px; font-weight: 800; color: #0f172a; }
-        .footer { margin-top: 4px; padding-top: 3px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 6px; color: #64748b; flex-shrink: 0; }
-        .no-data { text-align: center; padding: 15px 0; color: #64748b; font-size: 7px; }
+        .font-bold { font-weight: bold; }
+
+        .summary-grid {
+            margin-top: 30px;
+            width: 100%;
+            border: none;
+        }
+        .summary-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: center;
+        }
+        .summary-label {
+            font-size: 7.5pt;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .summary-value {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8pt;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 5px;
+        }
+        .page-number:after { content: "Halaman " counter(page); }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="header">
-            <div class="header-row">
-                <div>
-                    <div class="brand">E-Laptop Management</div>
-                    <div class="subtitle">Laporan Anggota & Member</div>
-                </div>
-                <div class="meta">
-                    <div class="meta-line">{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d/m/Y H:i') }} WIB</div>
-                    <div class="meta-line">Total: <strong>{{ $totalUsers ?? 0 }} Member</strong></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="content">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 4%;">No</th>
-                        <th style="width: 18%;">Nama</th>
-                        <th style="width: 20%;">Email</th>
-                        <th style="width: 13%;" class="text-center">No. HP</th>
-                        <th style="width: 10%;" class="text-center">Role</th>
-                        <th style="width: 12%;" class="text-center">Bergabung</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($users as $index => $user)
-                    <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>{{ Str::limit($user->name, 16) }}</td>
-                        <td>{{ Str::limit($user->email, 20) }}</td>
-                        <td class="text-center">{{ Str::limit($user->no_hp ?? '-', 11) }}</td>
-                        <td class="text-center">{{ ucfirst($user->role) }}</td>
-                        <td class="text-center">{{ $user->created_at ? $user->created_at->translatedFormat('d/m/y') : '-' }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="no-data">Tidak ada data member</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div class="summary">
-            <div class="metric">
-                <div class="metric-label">Total Member</div>
-                <div class="metric-value">{{ $totalUsers ?? 0 }}</div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">Peminjam</div>
-                <div class="metric-value">{{ $totalPeminjam ?? 0 }}</div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">Petugas</div>
-                <div class="metric-value">{{ $totalPetugas ?? 0 }}</div>
-            </div>
-            <div class="metric">
-                <div class="metric-label">Admin</div>
-                <div class="metric-value">{{ $totalAdmin ?? 0 }}</div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div>E-Laptop System | Laporan Member</div>
-            <div>Hal. 1/1</div>
-        </div>
+    <div class="header">
+        <table class="header-top" style="border: none;">
+            <tr>
+                <td style="border: none; padding: 0;">
+                    <h1 class="header-title">Daftar Pengguna Sistem</h1>
+                    <div class="header-subtitle">E-PUSTAKA Management System</div>
+                </td>
+                <td style="border: none; padding: 0; text-align: right; vertical-align: middle;">
+                    <div style="font-weight: bold; font-size: 9pt; color: #0f172a;">Total: {{ $totalUsers ?? 0 }} User</div>
+                    <div style="font-size: 8pt; color: #64748b;">Dicetak: {{ date('d/m/Y H:i') }}</div>
+                </td>
+            </tr>
+        </table>
     </div>
-</body>
-            </div>
-            <div class="metric">
-                <div class="metric-label">Admin</div>
-                <div class="metric-value">{{ ($totalUsers ?? 0) - ($totalPeminjam ?? 0) - ($totalPetugas ?? 0) }}</div>
-            </div>
-        </div>
 
-        <div class="footer">
-            <div>E-Laptop System | Laporan Member</div>
-            <div>Hal. 1/1</div>
-        </div>
-    </div>
-</body>
-</html>
-            <div>
-                <strong>E-Laptop Management System</strong><br>
-                Laporan data member profesional.
-            </div>
-            <div>
-                Halaman 1 / 1
-            </div>
-        </div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 30px;" class="text-center">No</th>
+                <th>Nama Lengkap</th>
+                <th>Email</th>
+                <th style="width: 110px;" class="text-center">No. HP</th>
+                <th style="width: 70px;" class="text-center">Role</th>
+                <th style="width: 90px;" class="text-center">Bergabung</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($users as $index => $user)
+            <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td class="font-bold">{{ $user->name }}</td>
+                <td>{{ $user->email }}</td>
+                <td class="text-center">{{ $user->no_hp ?? '-' }}</td>
+                <td class="text-center">{{ strtoupper($user->role) }}</td>
+                <td class="text-center">{{ $user->created_at ? $user->created_at->format('d/m/Y') : '-' }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <table class="summary-grid">
+        <tr>
+            <td style="border: none; padding-right: 10px;">
+                <div class="summary-card">
+                    <div class="summary-label">Peminjam</div>
+                    <div class="summary-value">{{ $totalPeminjam ?? 0 }}</div>
+                </div>
+            </td>
+            <td style="border: none; padding: 0 5px;">
+                <div class="summary-card">
+                    <div class="summary-label">Petugas</div>
+                    <div class="summary-value">{{ $totalPetugas ?? 0 }}</div>
+                </div>
+            </td>
+            <td style="border: none; padding-left: 10px;">
+                <div class="summary-card">
+                    <div class="summary-label">Administrator</div>
+                    <div class="summary-value">{{ ($totalUsers ?? 0) - ($totalPeminjam ?? 0) - ($totalPetugas ?? 0) }}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; text-align: left; width: 33%;">E-PUSTAKA System</td>
+                <td style="border: none; text-align: center; width: 33%;" class="page-number"></td>
+                <td style="border: none; text-align: right; width: 33%;">Laporan Keanggotaan</td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

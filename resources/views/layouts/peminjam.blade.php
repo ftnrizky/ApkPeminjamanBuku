@@ -1,286 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') | E-Laptop</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Dashboard') | E-Pustaka</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        
+        * {
+            font-family: 'DM Sans', sans-serif;
+        }
+
         body {
-            background: linear-gradient(135deg, #f0f4f8 0%, #f8fafc 50%, #f5f7fa 100%);
+            background: #f8fafc;
+            color: #1e293b;
         }
-        
-        /* Navbar Premium Styling */
-        nav {
-            background: linear-gradient(135deg, #0f172a 0%, #1a2f4a 100%);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(6, 182, 212, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            position: relative;
-            
+
+        .app-navbar {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px -26px rgba(15, 23, 42, 0.18);
         }
-        
-        nav::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(34, 211, 238, 0.08) 0%, transpaE-Laptop 50%),
-                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transpaE-Laptop 50%);
-            pointer-events: none;
-        }
-        
-        /* Logo box styling */
-        .logo-box {
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .logo-box:hover {
-            transform: scale(1.08) rotate(-2deg);
-            box-shadow: 0 12px 32px rgba(6, 182, 212, 0.4);
-        }
-        
-        /* Nav links */
+
         .nav-link {
             position: relative;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: rgba(203, 213, 225, 0.7);
+            color: #64748b;
             padding-bottom: 0.5rem;
-            border-b-2 border-transpaE-Laptop;
+            text-decoration: none;
+            transition: color 0.24s ease;
         }
-        
-        .nav-link::before {
+
+        .nav-link::after {
             content: '';
             position: absolute;
-            top: 100%;
             left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #06b6d4, #22d3ee);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover {
-            color: #22d3ee;
-        }
-        
-        .nav-link:hover::before {
+            bottom: 0;
             width: 100%;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.24s ease;
         }
-        
+
+        .nav-link:hover,
         .nav-link.active {
-            color: #22d3ee;
-            border-b-2 border-cyan-400;
-            text-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+            color: #2563eb;
         }
-        
-        /* Mobile menu */
-        #mobileMenu {
-            transition: all 0.3s ease-in-out;
-            background: linear-gradient(135deg, rgba(10, 25, 41, 0.95) 0%, rgba(26, 47, 74, 0.95) 100%);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(6, 182, 212, 0.2);
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            transform: scaleX(1);
         }
-        
-        .mobile-link {
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.3s ease;
-            color: rgba(203, 213, 225, 0.7);
-            padding: 0.5rem 0;
-            border-left: 3px solid transpaE-Laptop;
-            padding-left: 0.75rem;
+
+        .app-logo-box {
+            display: flex;
+            height: 2.8rem;
+            width: 2.8rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            background: #eff6ff;
+            color: #3b82f6;
+            box-shadow: inset 0 0 0 1px #dbeafe;
         }
-        
-        .mobile-link:hover {
-            color: #22d3ee;
-            border-left-color: #22d3ee;
-            padding-left: 1rem;
-        }
-        
-        .mobile-link.active {
-            color: #22d3ee;
-            border-left-color: #22d3ee;
-        }
-        
-        /* User info section */
-        .user-info {
-            font-size: 9px;
-            font-weight: 700;
-            color: rgba(34, 211, 238, 0.8);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-        
-        .user-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-        
-        /* Icon button styling */
+
         .icon-btn {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            background: rgba(6, 182, 212, 0.1);
-            color: #06b6d4;
-            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 0.95rem;
+            background: #ffffff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.28);
         }
-        
+
         .icon-btn:hover {
-            background: rgba(6, 182, 212, 0.2);
-            color: #22d3ee;
-            transform: scale(1.08);
-            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
-            border-color: rgba(34, 211, 238, 0.3);
+            color: #2563eb;
+            border-color: #bfdbfe;
+            background: #f8fbff;
+            transform: translateY(-1px) scale(1.02);
         }
-        
-        .logout-btn {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
-            color: #06b6d4;
-            border: 1px solid rgba(6, 182, 212, 0.2);
-            transition: all 0.3s ease;
+
+        .bottom-nav-shell {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 -14px 32px -26px rgba(15, 23, 42, 0.26);
         }
-        
-        .logout-btn:hover {
-            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
-            color: white;
-            box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        /* Card shadow for consistency */
-        .card-shadow {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* Navigation wrapper for z-index */
-        nav > * {
+
+        .bottom-nav-link {
             position: relative;
-            z-index: 10;
+            display: flex;
+            min-height: 62px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.32rem;
+            border-radius: 1rem;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.24s ease;
+        }
+
+        .bottom-nav-link::before {
+            content: '';
+            position: absolute;
+            inset: 5px 10px auto;
+            height: 30px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.22) 0%, rgba(96, 165, 250, 0.08) 58%, transparent 100%);
+            opacity: 0;
+            transform: translateY(8px) scale(0.88);
+            transition: all 0.24s ease;
+        }
+
+        .bottom-nav-link i {
+            font-size: 1rem;
+            transition: transform 0.24s ease;
+        }
+
+        .bottom-nav-link .bottom-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            line-height: 1;
+        }
+
+        .bottom-nav-link:hover,
+        .bottom-nav-link.active {
+            color: #3b82f6;
+        }
+
+        .bottom-nav-link:hover::before,
+        .bottom-nav-link.active::before {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .bottom-nav-link:hover i,
+        .bottom-nav-link.active i {
+            transform: translateY(-1px) scale(1.08);
+        }
+
+        .bottom-nav-link:active {
+            transform: scale(0.95);
+        }
+
+        .bottom-nav-badge {
+            position: absolute;
+            top: 5px;
+            right: 16px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 999px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 18px rgba(239, 68, 68, 0.24);
+            border: 2px solid rgba(255, 255, 255, 0.95);
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
 
-    <nav class="sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Logo -->
+<body>
+    @php
+        $jumlahDendaBelumLunas = \App\Models\Denda::whereHas(
+            'peminjaman',
+            fn($q) => $q->where('user_id', Auth::id()),
+        )
+            ->where('is_denda_lunas', false)
+            ->count();
+    @endphp
+
+    <nav class="app-navbar sticky top-0 z-50">
+        <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
             <div class="flex items-center gap-3">
-                <div class="logo-box p-2.5 rounded-[10px]">
-                    <i class="fas fa-laptop text-white text-lg"></i>
+                <div class="app-logo-box">
+                    <i class="fas fa-book-open text-lg"></i>
                 </div>
                 <div>
-                    <span class="text-lg font-extrabold tracking-tight text-white">E-<span class="text-cyan-300">LAPTOP</span></span>
-                    <p class="text-[9px] text-cyan-200/60 font-semibold">Borrower Portal</p>
+                    <span class="text-lg font-extrabold tracking-tight text-slate-900">E-<span class="text-blue-500">PUSTAKA</span></span>
+                    <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">Borrower Portal</p>
                 </div>
             </div>
 
-            <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center gap-8">
-                <a href="{{ route('peminjam.dashboard') }}" class="nav-link {{ request()->routeIs('peminjam.dashboard') ? 'active' : '' }}">
-                    Dashboard
-                </a>
-                <a href="{{ route('peminjam.katalog') }}" class="nav-link {{ request()->routeIs('peminjam.katalog') ? 'active' : '' }}">
-                    Katalog
-                </a>
-                <a href="{{ route('peminjam.kembali') }}" class="nav-link {{ request()->routeIs('peminjam.kembali') ? 'active' : '' }}">
-                    Pengembalian
-                </a>
-                <a href="{{ route('peminjam.riwayat') }}" class="nav-link {{ request()->routeIs('peminjam.riwayat') ? 'active' : '' }}">
-                    Riwayat
+                <a href="{{ route('peminjam.dashboard') }}"
+                    class="nav-link {{ request()->routeIs('peminjam.dashboard') ? 'active' : '' }}">Dashboard</a>
+                <a href="{{ route('peminjam.katalog') }}"
+                    class="nav-link {{ request()->routeIs('peminjam.katalog') ? 'active' : '' }}">Katalog</a>
+                <a href="{{ route('peminjam.kembali') }}"
+                    class="nav-link {{ request()->routeIs('peminjam.kembali') ? 'active' : '' }}">Pengembalian</a>
+                <a href="{{ route('peminjam.riwayat') }}"
+                    class="nav-link {{ request()->routeIs('peminjam.riwayat') ? 'active' : '' }}">Riwayat</a>
+                <a href="{{ route('peminjam.denda') }}"
+                    class="nav-link relative {{ request()->routeIs('peminjam.denda*') ? 'active' : '' }}">
+                    Denda
+                    @if ($jumlahDendaBelumLunas > 0)
+                        <span class="absolute -right-3 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
+                            {{ $jumlahDendaBelumLunas }}
+                        </span>
+                    @endif
                 </a>
             </div>
 
-            <!-- Right Section -->
-            <div class="flex items-center gap-4">
-                <!-- User Info (Desktop) -->
+            <div class="flex items-center gap-3">
                 <div class="hidden sm:block text-right">
-                    <p class="user-info">Peminjam</p>
-                    <p class="user-name">{{ Auth::user()->name }}</p>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Peminjam</p>
+                    <p class="text-sm font-semibold text-slate-800">{{ Auth::user()->name }}</p>
                 </div>
 
-                <!-- Notification Dropdown -->
-                <div class="hidden sm:block">
+                <div>
                     @include('partials.notification_dropdown')
                 </div>
 
-                <!-- Mobile Menu Button -->
-                <button onclick="toggleMenu()" class="md:hidden icon-btn">
-                    <i class="fas fa-bars text-lg"></i>
-                </button>
-
-                <!-- Logout Button (Desktop) -->
-                <form method="POST" action="{{ route('logout') }}" class="hidden md:block">
+                <form method="POST" action="{{ route('logout') }}" class="md:hidden">
                     @csrf
-                    <button type="submit" class="icon-btn logout-btn">
+                    <button type="submit" class="icon-btn">
                         <i class="fas fa-sign-out-alt text-sm"></i>
                     </button>
                 </form>
-            </div>
-        </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden">
-            <div class="px-6 py-6 flex flex-col gap-4 max-w-7xl mx-auto">
-                <a href="{{ route('peminjam.dashboard') }}" class="mobile-link {{ request()->routeIs('peminjam.dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-chart-line mr-2"></i>Dashboard
-                </a>
-                <a href="{{ route('peminjam.katalog') }}" class="mobile-link {{ request()->routeIs('peminjam.katalog') ? 'active' : '' }}">
-                    <i class="fas fa-book mr-2"></i>Katalog
-                </a>
-                <a href="{{ route('peminjam.kembali') }}" class="mobile-link {{ request()->routeIs('peminjam.kembali') ? 'active' : '' }}">
-                    <i class="fas fa-undo-alt mr-2"></i>Pengembalian
-                </a>
-                <a href="{{ route('peminjam.riwayat') }}" class="mobile-link {{ request()->routeIs('peminjam.riwayat') ? 'active' : '' }}">
-                    <i class="fas fa-history mr-2"></i>Riwayat
-                </a>
-                <hr class="border-white/5 my-2">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="hidden md:block">
                     @csrf
-                    <button type="submit" class="mobile-link" style="color: #f87171;">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    <button type="submit" class="icon-btn">
+                        <i class="fas fa-sign-out-alt text-sm"></i>
                     </button>
                 </form>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10">
+    <main class="mx-auto max-w-7xl px-4 py-6 pb-28 md:px-6 md:py-10 md:pb-10">
         @yield('content')
     </main>
 
-    <script>
-        function toggleMenu() {
-            const m = document.getElementById('mobileMenu');
-            m.classList.toggle('hidden');
-        }
-    </script>
+    <div class="fixed inset-x-0 bottom-0 z-50 px-3 md:hidden"
+        style="padding-bottom: calc(env(safe-area-inset-bottom) + 0.75rem);">
+        <div class="bottom-nav-shell mx-auto max-w-xl rounded-t-[28px] rounded-b-[26px] px-2 pt-2">
+            <div class="grid grid-cols-5 gap-1">
+                <a href="{{ route('peminjam.dashboard') }}"
+                    class="bottom-nav-link {{ request()->routeIs('peminjam.dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="bottom-label">Dashboard</span>
+                </a>
+                <a href="{{ route('peminjam.katalog') }}"
+                    class="bottom-nav-link {{ request()->routeIs('peminjam.katalog') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i>
+                    <span class="bottom-label">Katalog</span>
+                </a>
+                <a href="{{ route('peminjam.kembali') }}"
+                    class="bottom-nav-link {{ request()->routeIs('peminjam.kembali') ? 'active' : '' }}">
+                    <i class="fas fa-undo-alt"></i>
+                    <span class="bottom-label">Kembali</span>
+                </a>
+                <a href="{{ route('peminjam.riwayat') }}"
+                    class="bottom-nav-link {{ request()->routeIs('peminjam.riwayat') ? 'active' : '' }}">
+                    <i class="fas fa-history"></i>
+                    <span class="bottom-label">Riwayat</span>
+                </a>
+                <a href="{{ route('peminjam.denda') }}"
+                    class="bottom-nav-link {{ request()->routeIs('peminjam.denda*') ? 'active' : '' }}">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span class="bottom-label">Denda</span>
+                    @if ($jumlahDendaBelumLunas > 0)
+                        <span class="bottom-nav-badge">{{ $jumlahDendaBelumLunas }}</span>
+                    @endif
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     @yield('extra-script')
 </body>
+
 </html>

@@ -17,19 +17,19 @@ class KategoriSeeder extends Seeder
             [
                 'nama' => 'Gaming',
                 'icon' => 'fa-gamepad',
-                'deskripsi' => 'Laptop dengan performa tinggi untuk gaming dan rendering',
+                'deskripsi' => 'buku dengan performa tinggi untuk gaming dan rendering',
                 'warna' => 'purple'
             ],
             [
                 'nama' => 'Business',
                 'icon' => 'fa-briefcase',
-                'deskripsi' => 'Laptop profesional untuk pekerjaan kantoran dan produktivitas',
+                'deskripsi' => 'buku profesional untuk pekerjaan kantoran dan produktivitas',
                 'warna' => 'cyan'
             ],
             [
                 'nama' => 'Design',
                 'icon' => 'fa-pen-fancy',
-                'deskripsi' => 'Laptop untuk desain grafis, editing, dan konten kreatif',
+                'deskripsi' => 'buku untuk desain grafis, editing, dan konten kreatif',
                 'warna' => 'pink'
             ]
         ];

@@ -1,4 +1,4 @@
-# 🚀 E-LAPTOP MANAGEMENT SYSTEM - DEPLOYMENT READY
+# 🚀 E-PUSTAKA MANAGEMENT SYSTEM - DEPLOYMENT READY
 
 ## ✅ PROJECT STATUS: COMPLETE & PRODUCTION READY
 
@@ -18,7 +18,7 @@
 ## 📋 WHAT WAS COMPLETED
 
 ### 1️⃣ UI THEME TRANSFORMATION ✨
-- ✅ Emerald (Sports) → Cyan/Teal (Professional Laptop Theme)
+- ✅ Emerald (Sports) → Cyan/Teal (Professional buku Theme)
 - ✅ Color Palette: #06b6d4 (Cyan), #0891b2 (Teal)
 - ✅ Typography: Plus Jakarta Sans → Inter Font
 - ✅ Animations: Smooth cubic-bezier transitions
@@ -76,7 +76,7 @@ Complete audit trail for all user activities
 ---
 
 ### 4️⃣ OVERDUE MANAGEMENT SYSTEM ⏰
-Track and manage unpaid/unreturned laptops
+Track and manage unpaid/unreturned bukus
 
 **Components Created:**
 ```
@@ -327,7 +327,7 @@ php artisan route:list
 4. View complete audit trail
 
 **Overdue List:**
-1. Go to "Monitoring" → "Laptop Belum Kembali"
+1. Go to "Monitoring" → "buku Belum Kembali"
 2. See stats: Total, Overdue, Critical
 3. Search or filter by kategori
 4. Click "Notif" to send reminders
@@ -335,7 +335,7 @@ php artisan route:list
 ### For Staff Users
 **Overdue List:**
 1. Go to "Belum Dikembalikan" (sidebar)
-2. View all unpaid laptops
+2. View all unpaid bukus
 3. See remaining/overdue days
 4. Send reminders via button
 

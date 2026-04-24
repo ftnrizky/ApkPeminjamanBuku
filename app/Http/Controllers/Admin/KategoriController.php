@@ -10,14 +10,17 @@ class KategoriController extends Controller
 {
     public function index()
     {
-        $kategoris = Kategori::orderBy('created_at', 'desc')->get();
+        $kategoris = Kategori::withCount('alats')
+            ->latest()
+            ->get();
+
         return view('admin.kategori', compact('kategoris'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:50|unique:kategoris',
+            'nama' => 'required|string|max:50|unique:kategoris,nama',
             'icon' => 'required|string',
             'deskripsi' => 'nullable|string|max:200',
             'warna' => 'required|string'
@@ -25,7 +28,7 @@ class KategoriController extends Controller
 
         Kategori::create($validated);
 
-        return redirect()->route('admin.kategori')->with('success', 'Kategori berhasil ditambahkan!');
+        return back()->with('success', 'Kategori berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -41,20 +44,19 @@ class KategoriController extends Controller
 
         $kategori->update($validated);
 
-        return redirect()->route('admin.kategori')->with('success', 'Kategori berhasil diperbarui!');
+        return back()->with('success', 'Kategori berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         $kategori = Kategori::findOrFail($id);
-        
-        // Cek apakah kategori masih digunakan
+
         if ($kategori->alats()->exists()) {
-            return redirect()->route('admin.kategori')->with('error', 'Kategori masih digunakan oleh alat. Hapus alat terlebih dahulu!');
+            return back()->with('error', 'Kategori masih digunakan oleh alat!');
         }
 
         $kategori->delete();
 
-        return redirect()->route('admin.kategori')->with('success', 'Kategori berhasil dihapus!');
+        return back()->with('success', 'Kategori berhasil dihapus!');
     }
 }

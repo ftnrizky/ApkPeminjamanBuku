@@ -11,7 +11,7 @@
 
 <!-- Existing button yang open modal -->
 <button onclick="toggleModal('modal-tambah')" class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-xl font-700 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95 text-sm whitespace-nowrap">
-    <i class="fas fa-plus"></i> Tambah Laptop
+    <i class="fas fa-plus"></i> Tambah buku
 </button>
 
 <!-- PROBLEM: Old Modal Structure -->
@@ -48,7 +48,7 @@ function toggleModal(modalId) {
 
 <!-- Same button - no change needed! -->
 <button onclick="modalScroll.openModal('modal-tambah')" class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-xl font-700 flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95 text-sm whitespace-nowrap">
-    <i class="fas fa-plus"></i> Tambah Laptop
+    <i class="fas fa-plus"></i> Tambah buku
 </button>
 
 <!-- SOLUTION: New Modal Structure with Scroll Control -->
@@ -61,18 +61,18 @@ function toggleModal(modalId) {
         
         <!-- SOLUTION: Sticky Header (stays at top while scrolling) -->
         <div class="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between z-10">
-            <h2 class="text-2xl font-bold text-slate-900">Tambah Laptop Baru</h2>
+            <h2 class="text-2xl font-bold text-slate-900">Tambah buku Baru</h2>
             <button onclick="modalScroll.closeModal('modal-tambah')" class="text-slate-500 hover:text-slate-700 transition-colors">
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
 
         <!-- SOLUTION: Scrollable body content -->
-        <form method="POST" action="{{ route('admin.alat.store') }}" class="p-6 space-y-4" id="form-tambah-laptop">
+        <form method="POST" action="{{ route('admin.alat.store') }}" class="p-6 space-y-4" id="form-tambah-buku">
             @csrf
             
             <div>
-                <label class="block text-sm font-bold text-slate-700 mb-2">Nama Laptop</label>
+                <label class="block text-sm font-bold text-slate-700 mb-2">Nama buku</label>
                 <input type="text" name="nama_alat" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all" required>
             </div>
 
@@ -110,7 +110,7 @@ function toggleModal(modalId) {
 <!-- OPTIONAL: Add callbacks for form handling -->
 <script>
 // Optional: Add callbacks for better control
-document.getElementById('form-tambah-laptop').addEventListener('submit', function(e) {
+document.getElementById('form-tambah-buku').addEventListener('submit', function(e) {
     e.preventDefault();
     
     // Submit form
@@ -121,7 +121,7 @@ document.getElementById('form-tambah-laptop').addEventListener('submit', functio
         animate: true,
         onClose: function() {
             // Optional: Refresh table, show success message, etc
-            console.log('Laptop added successfully!');
+            console.log('buku added successfully!');
             // location.reload(); // Optional: reload page
         }
     });

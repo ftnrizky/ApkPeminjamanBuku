@@ -1,6 +1,6 @@
 # 📑 MASTER INDEX - ALL DOCUMENTATION & FILES
 
-**Project:** E-Laptop Management System v1.0
+**Project:** E-PUSTAKA Management System v1.0
 **Status:** ✅ PRODUCTION READY
 **Last Updated:** 20 April 2026
 
@@ -73,7 +73,7 @@
 ---
 
 ### Overdue Management System
-**What it does:** Tracks unreturned/unpaid laptops and allows sending reminders
+**What it does:** Tracks unreturned/unpaid bukus and allows sending reminders
 
 **Files involved:**
 - Controller: `app/Http/Controllers/OverdueListController.php`
@@ -222,23 +222,23 @@ Indexes:
 ```
 GET    /admin/activity-log              (Show all activities)
 GET    /admin/activity-log/export-pdf   (Export to PDF)
-GET    /admin/overdue-list              (Show overdue laptops)
+GET    /admin/overdue-list              (Show overdue bukus)
 POST   /admin/overdue-list/reminder/{id} (Send reminder)
 ```
 
 **Staff Routes:**
 ```
-GET    /petugas/overdue-list            (Show overdue laptops)
+GET    /petugas/overdue-list            (Show overdue bukus)
 POST   /petugas/overdue-list/reminder/{id} (Send reminder)
 ```
 
 ### Views
 **Admin Views:**
 - `/admin/activity-log` - Activity log dashboard
-- `/admin/overdue-list` - Overdue laptops with all filters
+- `/admin/overdue-list` - Overdue bukus with all filters
 
 **Staff Views:**
-- `/petugas/overdue-list` - Overdue laptops (simplified)
+- `/petugas/overdue-list` - Overdue bukus (simplified)
 
 ---
 
@@ -293,15 +293,15 @@ Forms:              Proper spacing, focus states
 3. Click "Cari" button
 4. Results update instantly
 
-### View Overdue Laptops
+### View Overdue bukus
 1. Login as Admin or Staff
-2. Go to Monitoring → Laptop Belum Kembali (or Belum Dikembalikan for staff)
+2. Go to Monitoring → buku Belum Kembali (or Belum Dikembalikan for staff)
 3. See stat cards with totals
-4. View table with all unpaid laptops
+4. View table with all unpaid bukus
 
 ### Send Reminder to Borrower
 1. In Overdue List table
-2. Click "Notif" button on laptop row
+2. Click "Notif" button on buku row
 3. Confirm in dialog
 4. Reminder sent (check if notifications implemented)
 

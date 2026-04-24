@@ -4,7 +4,7 @@
 
 Sebelum mensubmit form, pastikan:
 
-- [ ] Nama Laptop terisi
+- [ ] Nama buku terisi
 - [ ] Kategori dipilih (Gaming/Business/Design)
 - [ ] Kondisi dipilih (Baik/Lecet/Rusak)
 - [ ] Stok ≥ 1
@@ -55,7 +55,7 @@ php artisan tinker
 1. Buka halaman admin.alat
 2. Tekan F12 → Console tab
 3. Lihat ada error atau tidak
-4. Klik "Tambah Laptop" button
+4. Klik "Tambah buku" button
 5. Submit form dengan data minimal
 6. Lihat apakah ada error di console
 
@@ -89,8 +89,8 @@ php artisan tinker
 
 # Create manual test
 >>> App\Models\Alat::create([
-  'nama_alat' => 'Test Laptop',
-  'slug' => 'test-laptop-abc123',
+  'nama_alat' => 'Test buku',
+  'slug' => 'test-buku-abc123',
   'kategori' => 'Gaming',
   'stok_total' => 5,
   'stok_tersedia' => 5,
@@ -165,7 +165,7 @@ php artisan tinker
 ### Test 1: Minimal Valid Data
 ```
 Form Fields:
-- Nama Laptop: ASUS VivoBook 15
+- Nama buku: ASUS VivoBook 15
 - Kategori: Gaming
 - Kondisi: Baik
 - Stok: 5

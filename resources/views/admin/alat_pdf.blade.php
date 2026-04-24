@@ -1,248 +1,174 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Katalog Alat</title>
+    <title>Laporan Katalog Alat - E-PUSTAKA</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 8px;
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            color: #1a1a1a;
-            background: #fff;
-            line-height: 1.2;
-        }
-
-        .page {
-            width: 210mm;
-            height: 297mm;
-            padding: 6mm;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-            }
-
-            .page {
-                max-width: 100%;
-                height: auto;
-                padding: 5mm;
-                margin: 0;
-            }
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 10pt;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
         }
 
         .header {
-            margin-bottom: 4px;
-            border-bottom: 1px solid #0ea5e9;
-            padding-bottom: 3px;
-            flex-shrink: 0;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10px;
+        .header-top {
+            width: 100%;
+            margin-bottom: 10px;
         }
-
-        .brand {
-            font-size: 10px;
-            font-weight: 800;
+        .header-title {
+            font-size: 18pt;
+            font-weight: bold;
             color: #0f172a;
+            margin: 0;
+            text-transform: uppercase;
         }
-
-        .subtitle {
-            font-size: 6px;
+        .header-subtitle {
+            font-size: 10pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .meta-info {
+            width: 100%;
+            font-size: 9pt;
             color: #475569;
-            margin-top: 1px;
-            line-height: 1.1;
-        }
-
-        .meta {
-            font-size: 6px;
-            color: #475569;
-            text-align: left;
-        }
-
-        .meta strong {
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .meta-line {
-            margin: 1px 0;
-        }
-
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
+            margin-top: 10px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 3%;
-            font-size: 6px;
-            flex: 1;
+            table-layout: fixed;
+            margin-top: 15px;
         }
-
-        thead {
-            flex-shrink: 0;
-        }
-
-        tbody {
-            overflow-y: auto;
-        }
-
-        th,
-        td {
-            padding: 2px 1.5px;
-            border: 0.5px solid #cbd5e1;
-            text-align: left;
-        }
-
         th {
-            background: #0ea5e9;
-            color: #fff;
-            font-weight: 700;
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: bold;
+            text-align: left;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
-            line-height: 1.1;
+            font-size: 8pt;
+            border: 1px solid #e2e8f0;
+            padding: 8px 6px;
         }
-
         td {
-            color: #334155;
+            border: 1px solid #e2e8f0;
+            padding: 6px;
+            vertical-align: middle;
+            word-wrap: break-word;
+            font-size: 9pt;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
         }
 
-        tbody tr:nth-child(even) {
-            background: #f9fafb;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        
         .img-cell {
-            padding: 2px;
             text-align: center;
+            padding: 4px;
         }
-
         .img-cell img {
-            max-width: 18mm;
-            max-height: 18mm;
-            object-fit: cover;
-            border-radius: 2px;
-        }
-
-        .no-img {
-            font-size: 6px;
-            color: #cbd5e1;
+            max-width: 60px;
+            max-height: 60px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
         }
 
         .footer {
-            margin-top: 4px;
-            padding-top: 3px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 6px;
-            color: #64748b;
-            flex-shrink: 0;
-        }
-
-        .no-data {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
             text-align: center;
-            padding: 15px 0;
-            color: #64748b;
-            font-size: 8px;
+            font-size: 8pt;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 5px;
         }
+        .page-number:after { content: "Halaman " counter(page); }
     </style>
 </head>
-
 <body>
-    <div class="page">
-        <div class="header">
-            <div class="header-row">
-                <div>
-                    <div class="brand">E-Laptop Management</div>
-                    <div class="subtitle">Laporan Katalog Alat - Stok, Harga, Kondisi & Foto</div>
-                </div>
-                <div class="meta">
-                    <div class="meta-line">{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d/m/Y H:i') }} WIB
-                    </div>
-                    <div class="meta-line">Total: <strong>{{ $totalAlat }} Alat</strong> |
-                        <strong>{{ $totalUnit }} Unit</strong></div>
-                </div>
-            </div>
-        </div>
+    <div class="header">
+        <table class="header-top">
+            <tr>
+                <td style="border: none; padding: 0;">
+                    <h1 class="header-title">Katalog Inventaris Alat</h1>
+                    <div class="header-subtitle">E-PUSTAKA Management System</div>
+                </td>
+                <td style="border: none; padding: 0; text-align: right; vertical-align: middle;">
+                    <div style="font-weight: bold; font-size: 9pt; color: #0f172a;">Total: {{ $totalAlat }} Alat</div>
+                    <div style="font-size: 8pt; color: #64748b;">{{ $totalUnit }} Unit Tersedia</div>
+                </td>
+            </tr>
+        </table>
+        
+        <table class="meta-info">
+            <tr>
+                <td style="border: none; padding: 0;">
+                    Daftar lengkap aset alat, stok, dan kondisi fisik.
+                </td>
+                <td style="border: none; padding: 0; text-align: right;">
+                    <strong>Tanggal:</strong> {{ date('d/m/Y H:i') }}
+                </td>
+            </tr>
+        </table>
+    </div>
 
-        <div class="content">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 4%;">No</th>
-                        <th style="width: 12%;">Nama Laptop</th>
-                        <th style="width: 9%;">Kategori</th>
-                        <th style="width: 7%;" class="text-center">Stok</th>
-                        <th style="width: 10%;" class="text-center">Sewa/Hari</th>
-                        <th style="width: 8%;" class="text-center">Kondisi</th>
-                        <th style="width: 12%;" class="text-center">Deskripsi</th>
-                        <th style="width: 19%;" class="text-center">Foto</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($alats as $index => $alat)
-                        <tr>
-                            <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ Str::limit($alat->nama_alat, 15) }}</td>
-                            <td>{{ Str::limit($alat->kategori, 10) }}</td>
-                            <td class="text-center">{{ $alat->stok_tersedia }}/{{ $alat->stok_total }}</td>
-                            <td class="text-center">Rp{{ number_format($alat->harga_sewa, 0, '', '.') }}</td>
-                            <td class="text-center">{{ Str::limit(ucfirst($alat->kondisi), 7) }}</td>
-                            <td>{{ Str::limit($alat->deskripsi ?? '-', 12) }}</td>
-                            <td class="img-cell">
-                                @if ($alat->foto)
-                                    <img src="{{ asset('storage/' . $alat->foto) }}" alt="{{ $alat->nama_alat }}">
-                                @else
-                                    <span class="no-img">-</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="no-data">Tidak ada data alat</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25px;" class="text-center">No</th>
+                <th style="width: 50px;" class="text-center">Foto</th>
+                <th>Nama Alat</th>
+                <th style="width: 80px;">Kategori</th>
+                <th style="width: 50px;" class="text-center">Stok</th>
+                <th style="width: 70px;" class="text-right">Biaya/Hari</th>
+                <th style="width: 60px;" class="text-center">Kondisi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($alats as $index => $alat)
+            <tr>
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td class="img-cell">
+                    @if ($alat->foto)
+                        <img src="{{ public_path('storage/' . $alat->foto) }}" alt="Foto">
+                    @else
+                        <span style="color: #cbd5e1; font-size: 8pt;">N/A</span>
+                    @endif
+                </td>
+                <td class="font-bold">{{ $alat->nama_alat }}</td>
+                <td>{{ $alat->kategori }}</td>
+                <td class="text-center">{{ $alat->stok_tersedia }}/{{ $alat->stok_total }}</td>
+                <td class="text-right">Rp{{ number_format($alat->harga_sewa, 0, ',', '.') }}</td>
+                <td class="text-center">{{ ucfirst($alat->kondisi) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
 
-        <div class="footer">
-            <div>E-Laptop System | Laporan Katalog Alat</div>
-            <div>Hal. 1/1</div>
-        </div>
+    <div class="footer">
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="border: none; text-align: left; width: 33%;">E-PUSTAKA Inventory</td>
+                <td style="border: none; text-align: center; width: 33%;" class="page-number"></td>
+                <td style="border: none; text-align: right; width: 33%;">Laporan Aset Resmi</td>
+            </tr>
+        </table>
     </div>
 </body>
-
 </html>

@@ -1,4 +1,4 @@
-# 🧪 TESTING GUIDE - E-LAPTOP MANAGEMENT SYSTEM
+# 🧪 TESTING GUIDE - E-PUSTAKA MANAGEMENT SYSTEM
 
 ## Pre-Test Setup
 
@@ -76,7 +76,7 @@ php artisan serve
    - [ ] File opens in browser/PDF viewer
    - [ ] Filename: `activity-log-YYYYMMDD-HHMMSS.pdf`
    - [ ] PDF contains:
-     - Header with E-Laptop branding
+     - Header with E-PUSTAKA branding
      - Summary info
      - Activity table
      - Professional formatting
@@ -89,10 +89,10 @@ php artisan serve
 
 **Prerequisite:**
 - Admin logged in
-- Data with overdue laptops exists (create test data if needed)
+- Data with overdue bukus exists (create test data if needed)
 
 **Steps:**
-1. Navigate to Admin Sidebar → "Monitoring" → "Laptop Belum Kembali"
+1. Navigate to Admin Sidebar → "Monitoring" → "buku Belum Kembali"
 2. **Verify Page Loads:**
    - [ ] No errors on page load
    - [ ] 3 stat cards visible: Total, Overdue, Critical
@@ -100,14 +100,14 @@ php artisan serve
    - [ ] Stats cards have gradient backgrounds (cyan/amber/red)
 
 **Verify Stats Cards:**
-1. Count total unpaid laptops
+1. Count total unpaid bukus
 2. **Verify:**
    - [ ] "Total Belum Dikembalikan" = count of all unpaid
    - [ ] "Terlambat" = count of overdue (<3 days)
    - [ ] "Kritis (>3 Hari)" = count of critical (>3 days)
 
 **Verify Table:**
-- [ ] Columns: Kode, Peminjam, Laptop, Qty, Tgl Pinjam, Batas Kembali, Status, Aksi
+- [ ] Columns: Kode, Peminjam, buku, Qty, Tgl Pinjam, Batas Kembali, Status, Aksi
 - [ ] Table populated with data
 - [ ] At least one row visible
 - [ ] Status badges color-coded properly
@@ -135,7 +135,7 @@ php artisan serve
 ### TEST 6: Overdue List Search & Filter ✅
 
 **Steps:**
-1. In search field, enter borrower name or laptop model
+1. In search field, enter borrower name or buku model
 2. Click "Cari"
 3. **Verify:**
    - [ ] Results filtered to matching records
@@ -228,7 +228,7 @@ php artisan serve
 2. Find pending return request
 3. Click approve button
 4. **Verify Modal Opens:**
-   - [ ] Modal shows laptop details
+   - [ ] Modal shows buku details
    - [ ] Condition buttons visible (Baik, Lecet, Rusak, Hilang, Lainnya)
 
 **Steps:**
@@ -326,7 +326,7 @@ App\Models\ActivityLog::where('activity_type', 'pinjam')->latest()->first();
 2. **Verify Sidebar:**
    - [ ] "Monitoring" section visible
    - [ ] "Activity Log" menu item visible
-   - [ ] "Laptop Belum Kembali" menu item visible
+   - [ ] "buku Belum Kembali" menu item visible
 
 **Staff:**
 1. Login as staff
@@ -350,7 +350,7 @@ App\Models\ActivityLog::where('activity_type', 'pinjam')->latest()->first();
 **Test Missing Records:**
 1. Search for non-existent activity
 2. **Verify:**
-   - [ ] Empty state message shows: "Semua laptop sudah dikembalikan"
+   - [ ] Empty state message shows: "Semua buku sudah dikembalikan"
    - [ ] No error message
    - [ ] Page remains functional
 

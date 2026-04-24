@@ -1,215 +1,205 @@
 @extends('layouts.admin')
 
-@section('title', 'Daftar Laptop Belum Dikembalikan')
+@section('title', 'Daftar buku Belum Dikembalikan')
 
 @section('content')
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-    <div>
-        <h1 class="text-4xl font-bold text-slate-900 tracking-tight">Laptop Belum <span class="text-cyan-600">Dikembalikan</span></h1>
-        <p class="text-slate-500 font-medium text-sm tracking-wider mt-1">Monitor daftar laptop yang masih dalam peminjaman</p>
-    </div>
-</div>
 
-{{-- Stats Cards --}}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-    @php
-        $totalBelumKembali = $peminjamanList->total();
-        $totalOverdue = $peminjamanList->getCollection()->filter(fn($p) => $p->is_overdue)->count();
-        $totalCritical = $peminjamanList->getCollection()->filter(fn($p) => $p->is_critical)->count();
-    @endphp
-
-    <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Total Belum Dikembalikan</p>
-                <p class="text-3xl font-black text-cyan-700 mt-2">{{ $totalBelumKembali }}</p>
-            </div>
-            <div class="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center">
-                <i class="fas fa-laptop text-cyan-700 text-xl"></i>
-            </div>
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-slate-900 tracking-tight">
+                buku Belum <span class="text-cyan-600">Dikembalikan</span>
+            </h1>
+            <p class="text-slate-500 font-medium text-sm tracking-wider mt-1">
+                Monitor daftar buku yang masih dalam peminjaman
+            </p>
         </div>
     </div>
 
-    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Terlambat</p>
-                <p class="text-3xl font-black text-amber-700 mt-2">{{ $totalOverdue }}</p>
-            </div>
-            <div class="w-12 h-12 bg-amber-200 rounded-full flex items-center justify-center">
-                <i class="fas fa-clock text-amber-700 text-xl"></i>
-            </div>
-        </div>
-    </div>
+    {{-- FILTER (TAMBAHAN TAPI TIDAK MERUSAK DESAIN) --}}
+    <div class="bg-white rounded-2xl p-6 border shadow-sm mb-6">
+        <form method="GET" action="{{ route('admin.overdue_list') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-    <div class="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-6 border border-rose-200 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Kritis (>3 Hari)</p>
-                <p class="text-3xl font-black text-rose-700 mt-2">{{ $totalCritical }}</p>
-            </div>
-            <div class="w-12 h-12 bg-rose-200 rounded-full flex items-center justify-center">
-                <i class="fas fa-exclamation-triangle text-rose-700 text-xl"></i>
-            </div>
-        </div>
-    </div>
-</div>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari peminjam / buku"
+                class="px-4 py-3 bg-slate-50 border rounded-lg text-sm">
 
-{{-- Filter Section --}}
-<div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm mb-8">
-    <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <i class="fas fa-filter text-cyan-600"></i> Filter & Cari
-    </h2>
-    
-    <form method="GET" action="{{ route('admin.overdue_list') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {{-- Search --}}
-        <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nama Peminjam/Laptop</label>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none text-sm">
-        </div>
-
-        {{-- Kategori --}}
-        <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kategori</label>
-            <select name="kategori" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none text-sm">
+            <select name="kategori_id" class="px-4 py-3 bg-slate-50 border rounded-lg text-sm">
                 <option value="">Semua Kategori</option>
-                @foreach($kategoris as $kat)
-                    <option value="{{ $kat->kategori }}" {{ request('kategori') === $kat->kategori ? 'selected' : '' }}>
-                        {{ ucfirst($kat->kategori) }}
+
+                @foreach ($kategoris as $kat)
+                    <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>
+                        {{ $kat->nama }}
                     </option>
                 @endforeach
             </select>
-        </div>
 
-        {{-- Status --}}
-        <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
-            <select name="status" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-cyan-400 outline-none text-sm">
+            <select name="status" class="px-4 py-3 bg-slate-50 border rounded-lg text-sm">
                 <option value="">Semua Status</option>
-                @foreach($statuses as $st)
-                    <option value="{{ $st }}" {{ request('status') === $st ? 'selected' : '' }}>
+                @foreach ($statuses as $st)
+                    <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>
                         {{ ucfirst($st) }}
                     </option>
                 @endforeach
             </select>
-        </div>
 
-        {{-- Action Buttons --}}
-        <div class="flex gap-2 items-end">
-            <button type="submit" class="flex-1 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold px-4 py-3 rounded-lg transition-all hover:scale-105 active:scale-95 shadow-md text-sm">
-                Cari
-            </button>
-            <a href="{{ route('admin.overdue_list') }}?overdue_only=1" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-4 py-3 rounded-lg transition-all hover:scale-105 active:scale-95 shadow-md text-sm text-center">
-                Terlambat
-            </a>
-        </div>
-    </form>
-</div>
+            <div class="flex gap-2">
+                <button class="bg-cyan-500 text-white px-4 py-3 rounded-lg text-sm font-bold flex-1">
+                    Cari
+                </button>
 
-{{-- Data Table --}}
-<div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead>
-                <tr class="text-[10px] font-bold text-slate-600 uppercase tracking-widest border-b-2 border-slate-200">
-                    <th class="pb-4 px-4">Kode</th>
-                    <th class="pb-4 px-4">Peminjam</th>
-                    <th class="pb-4 px-4">Laptop</th>
-                    <th class="pb-4 px-4 text-center">Qty</th>
-                    <th class="pb-4 px-4">Tgl Pinjam</th>
-                    <th class="pb-4 px-4">Batas Kembali</th>
-                    <th class="pb-4 px-4 text-center">Status</th>
-                    <th class="pb-4 px-4 text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($peminjamanList as $pinjam)
-                    <tr class="group hover:bg-cyan-50/50 transition-colors duration-200">
-                        <td class="py-4 px-4">
-                            <span class="text-xs font-bold text-slate-900 bg-slate-100 px-2 py-1 rounded-lg">
-                                PJM-{{ str_pad($pinjam->id, 4, '0', STR_PAD_LEFT) }}
-                            </span>
-                        </td>
-                        <td class="py-4 px-4">
-                            <p class="text-xs font-bold text-slate-900">{{ $pinjam->user->name }}</p>
-                            <p class="text-[9px] text-slate-500 font-medium">{{ $pinjam->user->email }}</p>
-                        </td>
-                        <td class="py-4 px-4">
-                            <p class="text-xs font-bold text-slate-900">{{ $pinjam->alat->nama_alat }}</p>
-                            <p class="text-[9px] text-slate-500">{{ $pinjam->alat->kategori }}</p>
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <span class="text-xs font-bold text-slate-900">{{ $pinjam->jumlah }}</span>
-                        </td>
-                        <td class="py-4 px-4">
-                            <span class="text-xs font-semibold text-slate-900">{{ \Carbon\Carbon::parse($pinjam->tgl_pinjam)->translatedFormat('d M Y') }}</span>
-                        </td>
-                        <td class="py-4 px-4">
-                            <span class="text-xs font-semibold {{ $pinjam->is_overdue ? 'text-rose-700 font-black' : 'text-slate-900' }}">
-                                {{ \Carbon\Carbon::parse($pinjam->tgl_kembali)->translatedFormat('d M Y') }}
-                            </span>
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            @if($pinjam->is_overdue)
-                                <span class="text-[10px] font-bold px-3 py-1 rounded-lg {{ $pinjam->is_critical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700' }}">
-                                    <i class="fas fa-exclamation-circle mr-1"></i>
-                                    {{ $pinjam->days_remaining }} {{ $pinjam->days_remaining === 1 ? 'hari' : 'hari' }} Terlambat
-                                </span>
-                            @else
-                                <span class="text-[10px] font-bold px-3 py-1 rounded-lg bg-cyan-100 text-cyan-700">
-                                    <i class="fas fa-hourglass-half mr-1"></i> {{ $pinjam->days_remaining }} hari
-                                </span>
-                            @endif
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <button onclick="sendReminder({{ $pinjam->id }})" class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white text-[10px] font-bold px-3 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 shadow-sm">
-                                <i class="fas fa-bell mr-1"></i> Notif
-                            </button>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="8" class="py-16 text-center">
-                            <i class="fas fa-inbox text-slate-300 text-4xl mb-3 block"></i>
-                            <p class="text-slate-500 font-bold uppercase text-xs">Semua laptop sudah dikembalikan</p>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                <a href="{{ route('admin.overdue_list') }}?overdue_only=1"
+                    class="bg-amber-500 text-white px-4 py-3 rounded-lg text-sm font-bold flex-1 text-center">
+                    Terlambat
+                </a>
+            </div>
+
+        </form>
     </div>
 
-    {{-- Pagination --}}
-    @if($peminjamanList->hasPages())
-    <div class="mt-6 pt-6 border-t border-slate-200">
-        {{ $peminjamanList->links() }}
+    {{-- TABLE --}}
+    <div class="bg-white rounded-2xl p-6 border shadow-sm">
+
+        @php
+            $totalBelumKembali = $peminjamanList->total();
+            $totalOverdue = $peminjamanList->getCollection()->filter(fn($p) => $p->is_overdue)->count();
+            $totalCritical = $peminjamanList->getCollection()->filter(fn($p) => $p->is_critical)->count();
+        @endphp
+
+        {{-- STATS --}}
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="text-cyan-600 font-bold">Total: {{ $totalBelumKembali }}</div>
+            <div class="text-amber-600 font-bold">Terlambat: {{ $totalOverdue }}</div>
+            <div class="text-red-600 font-bold">Kritis: {{ $totalCritical }}</div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+
+                <thead>
+                    <tr class="text-xs font-bold text-slate-600 border-b">
+                        <th>Kode</th>
+                        <th>Peminjam</th>
+                        <th>buku</th>
+                        <th>Qty</th>
+                        <th>Pinjam</th>
+                        <th>Batas</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($peminjamanList as $pinjam)
+                        @php
+                            $now = \Carbon\Carbon::now();
+                            $batas = $pinjam->tgl_kembali ? \Carbon\Carbon::parse($pinjam->tgl_kembali) : null;
+                            $diff = $batas ? $now->diffInSeconds($batas, false) : null;
+                        @endphp
+
+                        <tr class="border-b hover:bg-gray-50">
+
+                            <td>PJM-{{ str_pad($pinjam->id, 4, '0', STR_PAD_LEFT) }}</td>
+
+                            <td>
+                                {{ optional($pinjam->user)->name ?? '-' }}<br>
+                                <small>{{ optional($pinjam->user)->email ?? '-' }}</small>
+                            </td>
+
+                            <td>{{ optional($pinjam->alat)->nama_alat ?? '-' }}</td>
+
+                            <td>{{ $pinjam->jumlah ?? '-' }}</td>
+
+                            <td>
+                                {{ $pinjam->tgl_pinjam ? \Carbon\Carbon::parse($pinjam->tgl_pinjam)->format('d M Y H:i') : '-' }}
+                            </td>
+
+                            <td>
+                                {{ $pinjam->tgl_kembali ? \Carbon\Carbon::parse($pinjam->tgl_kembali)->format('d M Y H:i') : '-' }}
+                            </td>
+
+                            {{-- REALTIME STATUS --}}
+                            <td>
+                                @if (is_null($diff))
+                                    <span class="text-gray-500 text-xs">-</span>
+                                @else
+                                    <span class="text-xs font-bold countdown" data-seconds="{{ $diff }}">
+                                        loading...
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td>
+                                <button onclick="sendReminder({{ $pinjam->id }})"
+                                    class="bg-cyan-500 text-white px-3 py-1 rounded text-xs">
+                                    Notif
+                                </button>
+                            </td>
+
+                        </tr>
+
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-10">Tidak ada data</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="mt-4">
+            {{ $peminjamanList->links() }}
+        </div>
     </div>
-    @endif
-</div>
 
-@push('scripts')
-<script>
-    function sendReminder(peminjamanId) {
-        if (!confirm('Kirim notifikasi pengingat pengembalian?')) return;
+    {{-- REALTIME JS --}}
+    <script>
+        function format(seconds) {
+            let abs = Math.abs(seconds);
+            return {
+                jam: Math.floor(abs / 3600),
+                menit: Math.floor((abs % 3600) / 60),
+                detik: abs % 60
+            };
+        }
 
-        fetch(`/admin/overdue-list/reminder/${peminjamanId}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(e => alert('Error: ' + e.message));
-    }
-</script>
-@endpush
+        function updateCountdown() {
+            document.querySelectorAll('.countdown').forEach(el => {
+                let seconds = parseInt(el.getAttribute('data-seconds'));
+                seconds--;
+                el.setAttribute('data-seconds', seconds);
+
+                let t = format(seconds);
+
+                if (seconds < 0) {
+                    el.className = "text-xs font-bold text-red-600 countdown";
+                    el.innerText = `${t.jam}j ${t.menit}m ${t.detik}s terlambat`;
+                } else if (seconds <= 3600) {
+                    el.className = "text-xs font-bold text-amber-600 countdown";
+                    el.innerText = `${t.jam}j ${t.menit}m ${t.detik}s tersisa`;
+                } else {
+                    el.className = "text-xs font-bold text-cyan-600 countdown";
+                    el.innerText = `${t.jam}j ${t.menit}m ${t.detik}s tersisa`;
+                }
+            });
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        function sendReminder(id) {
+            if (!confirm('Kirim pengingat?')) return;
+
+            fetch(`/admin/overdue-list/reminder/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => alert(data.message))
+                .catch(() => alert('Error'));
+        }
+    </script>
 
 @endsection

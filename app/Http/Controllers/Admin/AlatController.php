@@ -3,24 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use App\Models\Alat;
 use App\Models\Kategori;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AlatController extends Controller
 {
     public function alat(Request $request)
     {
-        $query = Alat::query();
+        $query = Alat::query()->with('kategori');
 
+        // 🔍 Search
         if ($request->filled('search')) {
             $query->where('nama_alat', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->filled('kategori') && $request->kategori != 'Semua') {
-            $query->where('kategori', $request->kategori);
+        // 🔥 Filter berdasarkan kategori_id (RELASI)
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
         }
 
         $alats = $query->latest()->get();
@@ -32,78 +36,97 @@ class AlatController extends Controller
     public function storeAlat(Request $request)
     {
         $request->validate([
-            'nama_alat' => 'required',
-            'kategori' => 'required',
-            'stok_total' => 'required|numeric',
-            'harga_sewa' => 'required|numeric',
-            'kondisi' => 'required',
-            'foto' => 'nullable|image|max:2048'
+            'nama_alat'   => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'stok_total'  => 'required|numeric|min:1',
+            'harga_sewa'  => 'required|numeric|min:0',
+            'kondisi'     => 'required',
+            'foto'        => 'nullable|image|max:2048',
         ]);
 
-        $path = $request->hasFile('foto') ? $request->file('foto')->store('alats', 'public') : null;
-        
-        // Cari kategori_id berdasarkan nama kategori
-        $kategoriModel = Kategori::where('nama', $request->kategori)->first();
+        $path = $request->hasFile('foto')
+            ? $request->file('foto')->store('alats', 'public')
+            : null;
 
-        Alat::create([
-            'nama_alat' => $request->nama_alat,
-            'slug' => \Illuminate\Support\Str::slug($request->nama_alat) . '-' . \Illuminate\Support\Str::random(5),
-            'kategori' => $request->kategori,
-            'kategori_id' => $kategoriModel ? $kategoriModel->id : null,
-            'stok_total' => $request->stok_total,
+        $alat = Alat::create([
+            'nama_alat'     => $request->nama_alat,
+            'slug'          => Str::slug($request->nama_alat) . '-' . Str::random(5),
+            'kategori_id'   => $request->kategori_id,
+            'stok_total'    => $request->stok_total,
             'stok_tersedia' => $request->stok_total,
-            'harga_sewa' => $request->harga_sewa,
-            'kondisi' => $request->kondisi,
-            'deskripsi' => $request->deskripsi,
-            'foto' => $path,
+            'harga_sewa'    => $request->harga_sewa,
+            'kondisi'       => $request->kondisi,
+            'deskripsi'     => $request->deskripsi,
+            'foto'          => $path,
         ]);
 
-        return back()->with('success', 'Alat berhasil ditambah!');
+        ActivityLogger::tambahAlat($alat);
+
+        return back()->with('success', 'Alat berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
     {
         $alat = Alat::findOrFail($id);
-        
+
         $request->validate([
-            'nama_alat' => 'required',
-            'stok_total' => 'required|numeric',
-            'harga_sewa' => 'required|numeric',
-            'kondisi' => 'required'
+            'nama_alat'   => 'required|string|max:255',
+            'kategori_id' => 'required|exists:kategoris,id',
+            'stok_total'  => 'required|numeric|min:1',
+            'harga_sewa'  => 'required|numeric|min:0',
+            'kondisi'     => 'required',
+            'foto'        => 'nullable|image|max:2048',
         ]);
 
+        // 📸 Update foto jika ada
         if ($request->hasFile('foto')) {
-            if ($alat->foto) Storage::disk('public')->delete($alat->foto);
+            if ($alat->foto) {
+                Storage::disk('public')->delete($alat->foto);
+            }
             $alat->foto = $request->file('foto')->store('alats', 'public');
         }
 
-        // Cari kategori_id berdasarkan nama kategori
-        $kategoriModel = Kategori::where('nama', $request->kategori)->first();
-
         $alat->update([
-            'nama_alat' => $request->nama_alat,
-            'kategori' => $request->kategori,
-            'kategori_id' => $kategoriModel ? $kategoriModel->id : null,
-            'stok_total' => $request->stok_total,
+            'nama_alat'     => $request->nama_alat,
+            'kategori_id'   => $request->kategori_id,
+            'stok_total'    => $request->stok_total,
             'stok_tersedia' => $request->stok_total,
-            'harga_sewa' => $request->harga_sewa,
-            'kondisi' => $request->kondisi,
-            'deskripsi' => $request->deskripsi,
+            'harga_sewa'    => $request->harga_sewa,
+            'kondisi'       => $request->kondisi,
+            'deskripsi'     => $request->deskripsi,
         ]);
 
-        return back()->with('success', 'Data diperbarui!');
+        ActivityLogger::editAlat($alat);
+
+        return back()->with('success', 'Data berhasil diperbarui!');
+    }
+
+    public function destroy($id)
+    {
+        $alat = Alat::findOrFail($id);
+
+        // 🗑️ Hapus foto jika ada
+        if ($alat->foto) {
+            Storage::disk('public')->delete($alat->foto);
+        }
+
+        ActivityLogger::hapusAlat($alat);
+
+        $alat->delete();
+
+        return back()->with('success', 'Data berhasil dihapus!');
     }
 
     public function exportPdf(Request $request)
     {
-        $query = Alat::query();
+        $query = Alat::query()->with('kategori');
 
         if ($request->filled('search')) {
             $query->where('nama_alat', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->filled('kategori') && $request->kategori != 'Semua') {
-            $query->where('kategori', $request->kategori);
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
         }
 
         $alats = $query->latest()->get();
@@ -111,19 +134,7 @@ class AlatController extends Controller
         $totalUnit = $alats->sum('stok_total');
 
         $pdf = Pdf::loadView('admin.alat_pdf', compact('alats', 'totalAlat', 'totalUnit'));
-        return $pdf->download('laporan-katalog-alat-' . now()->format('Y-m-d') . '.pdf');
-    }
 
-    public function destroy($id)
-    {
-        $alat = Alat::findOrFail($id);
-
-        if ($alat->foto) {
-            Storage::disk('public')->delete($alat->foto);
-        }
-
-        $alat->delete();
-
-        return redirect()->back()->with('success', 'Peralatan berhasil dihapus dari katalog.');
+        return $pdf->download('laporan-alat-' . now()->format('Y-m-d') . '.pdf');
     }
 }
